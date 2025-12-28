@@ -43,18 +43,20 @@ export function MonthlyTable({ data }: MonthlyTableProps) {
         <TableHeader>
           <TableRow className="border-b-2 border-foreground bg-secondary">
             <TableHead className="font-bold text-foreground">Mês</TableHead>
-            <TableHead className="font-bold text-foreground text-right">Projetos</TableHead>
-            <TableHead className="font-bold text-foreground text-right">Recorrência</TableHead>
-            <TableHead className="font-bold text-foreground text-right">Total</TableHead>
+            <TableHead className="font-bold text-foreground text-right">Receita Prevista</TableHead>
+            <TableHead className="font-bold text-foreground text-right">Despesa Prevista</TableHead>
+            <TableHead className="font-bold text-foreground text-right">Resultado Esperado</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((row) => (
             <TableRow key={row.month} className="border-b border-foreground/20">
               <TableCell className="font-medium">{formatMonth(row.month)}</TableCell>
-              <TableCell className="text-right font-mono">{formatCurrency(row.projetos)}</TableCell>
-              <TableCell className="text-right font-mono">{formatCurrency(row.recorrencia)}</TableCell>
-              <TableCell className="text-right font-mono font-bold">{formatCurrency(row.total)}</TableCell>
+              <TableCell className="text-right font-mono text-emerald-600">{formatCurrency(row.receita)}</TableCell>
+              <TableCell className="text-right font-mono text-red-600">{formatCurrency(row.despesas)}</TableCell>
+              <TableCell className={`text-right font-mono font-bold ${row.saldo >= 0 ? 'text-primary' : 'text-red-600'}`}>
+                {formatCurrency(row.saldo)}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

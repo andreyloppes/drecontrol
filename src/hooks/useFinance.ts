@@ -146,23 +146,33 @@ export function useFinance() {
     const grouped: Record<string, MonthlyData> = {};
 
     transactions
-      .filter((t) => t.status === 'recebido') // Only count realized transactions for historical data
+      // .filter((t) => t.status === 'recebido') // Removed filter to include projected/pending for the monthly summary Forecast
       .forEach((t) => {
         if (!grouped[t.month]) {
-          grouped[t.month] = { month: t.month, projetos: 0, recorrencia: 0, despesas: 0, total: 0, saldo: 0 };
+          grouped[t.month] = { month: t.month, projetos: 0, recorrencia: 0, receita: 0, despesas: 0, total: 0, saldo: 0 };
         }
 
         const amount = Number(t.amount); // Ensure number type
+        const absAmount = Math.abs(amount);
+
+        // Sum Revenues (Positive values from projects or recurring, or anything not Expense)
+        if (t.type !== 'despesa') {
+          grouped[t.month].receita += amount;
+        }
 
         if (t.type === 'projeto') {
           grouped[t.month].projetos += amount;
         } else if (t.type === 'recorrencia') {
           grouped[t.month].recorrencia += amount;
         } else if (t.type === 'despesa') {
-          grouped[t.month].despesas += Math.abs(amount);
+          grouped[t.month].despesas += absAmount; // Storing as positive number for "Total Expense" column
         }
 
-        grouped[t.month].total += amount; // This includes expenses as negative
+        // Logic for Total/Saldo in the table:
+        // Current logic: total includes expenses as negative. 
+        // User asked for "Resultado Esperado" -> Net Result.
+
+        grouped[t.month].total += amount;
         grouped[t.month].saldo += amount;
       });
 

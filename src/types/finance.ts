@@ -17,6 +17,7 @@ export interface MonthlyData {
   month: string;
   projetos: number;
   recorrencia: number;
+  receita: number;
   despesas: number;
   total: number;
   saldo: number;
