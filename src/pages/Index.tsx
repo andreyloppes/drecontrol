@@ -3,19 +3,21 @@ import { AddTransactionForm } from '@/components/AddTransactionForm';
 import { StatsCard } from '@/components/StatsCard';
 import { MonthlyTable } from '@/components/MonthlyTable';
 import { TransactionList } from '@/components/TransactionList';
-import { Wallet, TrendingUp, Clock, Calendar } from 'lucide-react';
+import { MonthFilter } from '@/components/MonthFilter';
+import { Wallet, TrendingUp, Clock, Calendar, Briefcase, RefreshCw } from 'lucide-react';
 
 const Index = () => {
   const {
-    transactions,
+    filteredTransactions,
+    selectedMonth,
+    setSelectedMonth,
+    availableMonths,
     addTransaction,
     deleteTransaction,
     updateTransactionStatus,
     monthlyData,
     totalCaixa,
-    totalPendente,
-    totalPrevisto,
-    currentMonthTotal,
+    selectedMonthStats,
   } = useFinance();
 
   return (
@@ -31,8 +33,17 @@ const Index = () => {
       </header>
 
       <main className="container py-8 space-y-8">
+        {/* Month Filter */}
+        <section>
+          <MonthFilter
+            selectedMonth={selectedMonth}
+            onMonthChange={setSelectedMonth}
+            availableMonths={availableMonths}
+          />
+        </section>
+
         {/* Stats Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <StatsCard
             title="Caixa Total"
             value={totalCaixa}
@@ -41,18 +52,28 @@ const Index = () => {
           />
           <StatsCard
             title="Recebido (Mês)"
-            value={currentMonthTotal}
+            value={selectedMonthStats.recebido}
             icon={<TrendingUp className="w-5 h-5" />}
           />
           <StatsCard
-            title="Pendente"
-            value={totalPendente}
+            title="Pendente (Mês)"
+            value={selectedMonthStats.pendente}
             icon={<Clock className="w-5 h-5" />}
           />
           <StatsCard
-            title="Previsto"
-            value={totalPrevisto}
+            title="Previsto (Mês)"
+            value={selectedMonthStats.previsto}
             icon={<Calendar className="w-5 h-5" />}
+          />
+          <StatsCard
+            title="Projetos (Mês)"
+            value={selectedMonthStats.projetos}
+            icon={<Briefcase className="w-5 h-5" />}
+          />
+          <StatsCard
+            title="Recorrência (Mês)"
+            value={selectedMonthStats.recorrencia}
+            icon={<RefreshCw className="w-5 h-5" />}
           />
         </section>
 
@@ -74,14 +95,14 @@ const Index = () => {
           <MonthlyTable data={monthlyData} />
         </section>
 
-        {/* Recent Transactions */}
-        {transactions.length > 0 && (
+        {/* Transactions for Selected Month */}
+        {filteredTransactions.length > 0 && (
           <section>
             <h2 className="text-2xl font-bold mb-4 border-b-2 border-foreground pb-2">
-              Últimas Entradas
+              Entradas do Mês
             </h2>
             <TransactionList 
-              transactions={transactions} 
+              transactions={filteredTransactions} 
               onDelete={deleteTransaction}
               onUpdateStatus={updateTransactionStatus}
             />
