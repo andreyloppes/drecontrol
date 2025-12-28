@@ -36,13 +36,17 @@ export function ConnectionPage() {
     const [key, setKey] = useState(config?.key || '');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
+    const [errorMessage, setErrorMessage] = useState('');
+
     const handleConnect = async () => {
         setStatus('loading');
-        const success = await connect(url, key);
+        setErrorMessage('');
+        const { success, error } = await connect(url, key);
         if (success) {
             setStatus('success');
         } else {
             setStatus('error');
+            setErrorMessage(error || 'Erro na conexão');
         }
     };
 
@@ -98,7 +102,7 @@ export function ConnectionPage() {
                                 <Alert variant="destructive">
                                     <AlertCircle className="h-4 w-4" />
                                     <AlertTitle>Erro na conexão</AlertTitle>
-                                    <AlertDescription>Verifique a URL e a Chave e tente novamente.</AlertDescription>
+                                    <AlertDescription>{errorMessage || 'Verifique a URL e a Chave e tente novamente.'}</AlertDescription>
                                 </Alert>
                             )}
                         </div>

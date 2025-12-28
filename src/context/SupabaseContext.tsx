@@ -5,7 +5,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 type SupabaseContextType = {
     client: SupabaseClient | null;
     isConnected: boolean;
-    connect: (url: string, key: string) => Promise<boolean>;
+    connect: (url: string, key: string) => Promise<{ success: boolean; error?: string }>;
     disconnect: () => void;
     config: { url: string; key: string } | null;
     isLoading: boolean;
@@ -34,32 +34,33 @@ export const SupabaseProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(false);
     }, []);
 
-    const connect = async (url: string, key: string): Promise<boolean> => {
+    const connect = async (url: string, key: string): Promise<{ success: boolean; error?: string }> => {
         try {
             const newClient = createClient(url, key);
 
-            // Verification query
-            const { error } = await newClient.from('transactions').select('count', { count: 'exact', head: true });
+            // Verification query: Try to select 1 row (making it extremely cheap)
+            const { error } = await newClient.from('transactions').select('id').limit(1);
 
-            // Warning: If table doesn't exist, this might throw. 
-            // Ideally we check connection by a simpler call or handle the error gracefully.
-            // For now, if we get a connection error (like invalid URL), it will fail. 
-            // If table missing, it might be a 404 or 400, but client is "valid".
+            if (error) {
+                console.error("Connection check failed:", error);
 
-            if (error && error.code !== 'PGRST116') { // Ignore "Result contains 0 rows" or similar logical errors, focus on connection
-                // Actually, if table doesn't exist, we might want to let them connect anyway and show setup instructions.
-                // But let's assume valid connection if we can instantiate.
-                console.log("Connection check result:", error);
+                // Check specifically for "relation does not exist" which means table missing
+                if (error.code === '42P01') {
+                    return { success: false, error: 'Tabela "transactions" não encontrada. Execute o SQL abaixo no Supabase.' };
+                }
+
+                // Generic connection error (e.g., bad URL/Key)
+                return { success: false, error: 'Erro ao conectar. Verifique URL e Chave.' };
             }
 
             setClient(newClient);
             setConfig({ url, key });
             localStorage.setItem('supabase_url', url);
             localStorage.setItem('supabase_key', key);
-            return true;
-        } catch (error) {
+            return { success: true };
+        } catch (error: any) {
             console.error('Connection failed:', error);
-            return false;
+            return { success: false, error: error?.message || 'Erro desconhecido ao conectar.' };
         }
     };
 

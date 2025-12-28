@@ -78,7 +78,7 @@ export function useFinance() {
         .single();
 
       if (error) {
-        toast.error('Erro ao salvar no Supabase');
+        toast.error(`Erro ao salvar: ${error.message || error.details || 'Erro desconhecido'}`);
         console.error(error);
       } else if (data) {
         setRemoteTransactions(prev => [...prev, data]);
@@ -98,7 +98,7 @@ export function useFinance() {
     if (isConnected && client) {
       const { error } = await client.from('transactions').delete().eq('id', id);
       if (error) {
-        toast.error('Erro ao apagar do Supabase');
+        toast.error(`Erro ao apagar: ${error.message}`);
       } else {
         setRemoteTransactions(prev => prev.filter(t => t.id !== id));
         toast.success('Apagado do Banco de Dados');
