@@ -3,18 +3,19 @@ import { AddTransactionForm } from '@/components/AddTransactionForm';
 import { StatsCard } from '@/components/StatsCard';
 import { MonthlyTable } from '@/components/MonthlyTable';
 import { TransactionList } from '@/components/TransactionList';
-import { Wallet, TrendingUp, Briefcase, RefreshCw } from 'lucide-react';
+import { Wallet, TrendingUp, Clock, Calendar } from 'lucide-react';
 
 const Index = () => {
   const {
     transactions,
     addTransaction,
     deleteTransaction,
+    updateTransactionStatus,
     monthlyData,
     totalCaixa,
+    totalPendente,
+    totalPrevisto,
     currentMonthTotal,
-    currentMonthProjetos,
-    currentMonthRecorrencia,
   } = useFinance();
 
   return (
@@ -39,19 +40,19 @@ const Index = () => {
             variant="highlight"
           />
           <StatsCard
-            title="Este Mês"
+            title="Recebido (Mês)"
             value={currentMonthTotal}
             icon={<TrendingUp className="w-5 h-5" />}
           />
           <StatsCard
-            title="Projetos (Mês)"
-            value={currentMonthProjetos}
-            icon={<Briefcase className="w-5 h-5" />}
+            title="Pendente"
+            value={totalPendente}
+            icon={<Clock className="w-5 h-5" />}
           />
           <StatsCard
-            title="Recorrência (Mês)"
-            value={currentMonthRecorrencia}
-            icon={<RefreshCw className="w-5 h-5" />}
+            title="Previsto"
+            value={totalPrevisto}
+            icon={<Calendar className="w-5 h-5" />}
           />
         </section>
 
@@ -79,7 +80,11 @@ const Index = () => {
             <h2 className="text-2xl font-bold mb-4 border-b-2 border-foreground pb-2">
               Últimas Entradas
             </h2>
-            <TransactionList transactions={transactions} onDelete={deleteTransaction} />
+            <TransactionList 
+              transactions={transactions} 
+              onDelete={deleteTransaction}
+              onUpdateStatus={updateTransactionStatus}
+            />
           </section>
         )}
       </main>
