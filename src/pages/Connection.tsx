@@ -82,16 +82,18 @@ export function ConnectionPage() {
                     ) : (
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Project URL</label>
+                                <label htmlFor="supabase-url" className="text-sm font-medium">Project URL</label>
                                 <Input
+                                    id="supabase-url"
                                     placeholder="https://seu-projeto.supabase.co"
                                     value={url}
                                     onChange={(e) => setUrl(e.target.value)}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Anon Public Key</label>
+                                <label htmlFor="supabase-key" className="text-sm font-medium">Anon Public Key</label>
                                 <Input
+                                    id="supabase-key"
                                     placeholder="eyJhbGciOiJIUz..."
                                     value={key}
                                     onChange={(e) => setKey(e.target.value)}
@@ -102,7 +104,18 @@ export function ConnectionPage() {
                                 <Alert variant="destructive">
                                     <AlertCircle className="h-4 w-4" />
                                     <AlertTitle>Erro na conexão</AlertTitle>
-                                    <AlertDescription>{errorMessage || 'Verifique a URL e a Chave e tente novamente.'}</AlertDescription>
+                                    <AlertDescription>
+                                        {errorMessage || 'Verifique a URL e a Chave.'}
+                                        {errorMessage?.toLowerCase().includes('failed to fetch') && (
+                                            <div className="mt-2 text-xs bg-red-950/20 p-2 rounded">
+                                                <strong>Dica (Erro CORS):</strong> O navegador bloqueou o acesso.
+                                                <br />
+                                                Vá no Supabase &gt; Settings &gt; API &gt; Extra CORS origins.
+                                                <br />
+                                                Adicione: <code>https://drecontrol-app.vercel.app</code>
+                                            </div>
+                                        )}
+                                    </AlertDescription>
                                 </Alert>
                             )}
                         </div>
@@ -111,10 +124,12 @@ export function ConnectionPage() {
                     <div className="mt-8 pt-6 border-t">
                         <h3 className="font-semibold mb-2 flex items-center gap-2">
                             <Smartphone className="h-4 w-4" />
-                            Configurar Tabela
+                            Configuração Necessária
                         </h3>
                         <p className="text-sm text-muted-foreground mb-4">
-                            Para que funcione, você precisa criar a tabela no seu Supabase. Copie o código abaixo e rode no <strong>SQL Editor</strong> do Supabase.
+                            1. Rode o SQL abaixo no seu Supabase para criar a tabela.
+                            <br />
+                            2. Se der erro de conexão (CORS), vá em <strong>Settings &gt; API</strong> no Supabase e adicione esta URL nas origens permitidas.
                         </p>
                         <div className="bg-slate-950 text-slate-50 p-4 rounded-md overflow-x-auto text-xs font-mono relative">
                             <pre>{SetupSQL}</pre>
