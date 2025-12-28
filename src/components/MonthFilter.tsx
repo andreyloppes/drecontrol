@@ -11,7 +11,7 @@ interface MonthFilterProps {
 
 export function MonthFilter({ selectedMonth, onMonthChange, availableMonths }: MonthFilterProps) {
   const currentMonth = new Date().toISOString().substring(0, 7);
-  
+
   const formatMonthLabel = (month: string) => {
     const date = parse(month, 'yyyy-MM', new Date());
     return format(date, "MMMM 'de' yyyy", { locale: ptBR });
@@ -41,7 +41,7 @@ export function MonthFilter({ selectedMonth, onMonthChange, availableMonths }: M
       >
         <ChevronLeft className="w-4 h-4" />
       </Button>
-      
+
       <div className="text-center">
         <p className="text-lg font-bold capitalize">{formatMonthLabel(selectedMonth)}</p>
         {isCurrentMonth && (
@@ -53,7 +53,7 @@ export function MonthFilter({ selectedMonth, onMonthChange, availableMonths }: M
         variant="outline"
         size="icon"
         onClick={handleNextMonth}
-        disabled={isCurrentMonth}
+        disabled={availableMonths.length > 0 && selectedMonth === availableMonths[0]}
         className="border-2"
       >
         <ChevronRight className="w-4 h-4" />

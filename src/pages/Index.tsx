@@ -6,7 +6,7 @@ import { TransactionList } from '@/components/TransactionList';
 import { MonthFilter } from '@/components/MonthFilter';
 import { DFCChart } from '@/components/DFCChart';
 import { AIAssistant } from '@/components/AIAssistant';
-import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw, Database } from 'lucide-react';
 
 const Index = () => {
   const {
@@ -27,11 +27,16 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b-2 border-foreground">
-        <div className="container py-6">
-          <h1 className="text-4xl font-bold tracking-tight">DRE Control</h1>
-          <p className="text-muted-foreground mt-1">
-            Controle financeiro • Tech • Automação • IA
-          </p>
+        <div className="container py-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight">DRE Control</h1>
+            <p className="text-muted-foreground mt-1">
+              Controle financeiro • Tech • Automação • IA
+            </p>
+          </div>
+          <a href="/settings" className="p-2 hover:bg-accent rounded-full text-foreground transition-colors" title="Conectar Banco de Dados">
+            <Database className="w-6 h-6" />
+          </a>
         </div>
       </header>
 
@@ -64,13 +69,15 @@ const Index = () => {
           />
           <StatsCard
             title="Despesas (Mês)"
-            value={selectedMonthStats.despesas}
+            value={Math.abs(selectedMonthStats.despesas + (selectedMonthStats.despesasPrevistas ?? 0))}
             icon={<TrendingDown className="w-5 h-5 text-red-500" />}
+            description={`Pago: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.despesas)} | Prev: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.despesasPrevistas ?? 0)}`}
           />
           <StatsCard
-            title="Projetado (Mês)"
-            value={selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto - selectedMonthStats.despesas}
+            title="Receita Total (Mês)"
+            value={selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto}
             icon={<Calendar className="w-5 h-5" />}
+            description={`Realizado: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.recebido)} | Prev: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.pendente + selectedMonthStats.previsto)}`}
           />
         </section>
 
