@@ -57,10 +57,11 @@ const Index = () => {
         {/* Stats Grid */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
-            title="Caixa Total"
-            value={totalCaixa}
+            title="Saldo (Mês)"
+            value={(selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto) - (selectedMonthStats.despesas + (selectedMonthStats.despesasPrevistas ?? 0))}
             icon={<Wallet className="w-5 h-5" />}
             variant="highlight"
+            description="Receita Total - Despesas"
           />
           <StatsCard
             title="Recebido (Mês)"
