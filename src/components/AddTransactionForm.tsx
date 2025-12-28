@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,13 +6,14 @@ import { TransactionType, PaymentStatus } from '@/types/finance';
 import { Plus } from 'lucide-react';
 
 interface AddTransactionFormProps {
-  onAdd: (transaction: { description: string; amount: number; type: TransactionType; status: PaymentStatus; date: string }) => void;
+  onAdd: (transaction: { description: string; amount: number; type: TransactionType; status: PaymentStatus; date: string; category: string }) => void;
 }
 
 export function AddTransactionForm({ onAdd }: AddTransactionFormProps) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<TransactionType>('projeto');
+  const [category, setCategory] = useState('');
   const [status, setStatus] = useState<PaymentStatus>('recebido');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
@@ -24,16 +25,18 @@ export function AddTransactionForm({ onAdd }: AddTransactionFormProps) {
       description,
       amount: parseFloat(amount),
       type,
+      category: category || (type === 'despesa' ? 'Geral' : 'Vendas'),
       status,
       date,
     });
 
     setDescription('');
     setAmount('');
+    setCategory('');
   };
 
   const statusOptions: { value: PaymentStatus; label: string }[] = [
-    { value: 'recebido', label: 'Recebido' },
+    { value: 'recebido', label: type === 'despesa' ? 'Pago' : 'Recebido' },
     { value: 'pendente', label: 'Pendente' },
     { value: 'previsto', label: 'Previsto' },
     { value: 'cancelado', label: 'Cancelado' },
@@ -48,7 +51,7 @@ export function AddTransactionForm({ onAdd }: AddTransactionFormProps) {
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Ex: Projeto Automação XYZ"
+            placeholder={type === 'despesa' ? "Ex: Conta de Luz" : "Ex: Projeto Automação PPP"}
             className="border-2"
           />
         </div>
@@ -66,27 +69,46 @@ export function AddTransactionForm({ onAdd }: AddTransactionFormProps) {
         </div>
       </div>
 
+      <div className="space-y-2">
+        <Label>Tipo</Label>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant={type === 'projeto' ? 'default' : 'outline'}
+            onClick={() => setType('projeto')}
+            className="flex-1 border-2"
+          >
+            Projeto
+          </Button>
+          <Button
+            type="button"
+            variant={type === 'recorrencia' ? 'default' : 'outline'}
+            onClick={() => setType('recorrencia')}
+            className="flex-1 border-2"
+          >
+            Recorrência
+          </Button>
+          <Button
+            type="button"
+            variant={type === 'despesa' ? 'destructive' : 'outline'}
+            onClick={() => setType('despesa')}
+            className={`flex-1 border-2 ${type !== 'despesa' ? 'hover:bg-destructive/10 hover:text-destructive' : ''}`}
+          >
+            Despesa
+          </Button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Tipo</Label>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant={type === 'projeto' ? 'default' : 'outline'}
-              onClick={() => setType('projeto')}
-              className="flex-1 border-2"
-            >
-              Projeto
-            </Button>
-            <Button
-              type="button"
-              variant={type === 'recorrencia' ? 'default' : 'outline'}
-              onClick={() => setType('recorrencia')}
-              className="flex-1 border-2"
-            >
-              Recorrência
-            </Button>
-          </div>
+          <Label htmlFor="category">Categoria</Label>
+          <Input
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            placeholder={type === 'despesa' ? "Ex: Escritório, Software" : "Ex: Cliente A, Consultoria"}
+            className="border-2"
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="date">Data</Label>
@@ -117,9 +139,9 @@ export function AddTransactionForm({ onAdd }: AddTransactionFormProps) {
         </div>
       </div>
 
-      <Button type="submit" className="w-full border-2 shadow-sm hover:shadow-md transition-shadow">
+      <Button type="submit" className={`w-full border-2 shadow-sm hover:shadow-md transition-shadow ${type === 'despesa' ? 'bg-destructive hover:bg-destructive/90' : ''}`}>
         <Plus className="w-4 h-4 mr-2" />
-        Adicionar Entrada
+        {type === 'despesa' ? 'Adicionar Despesa' : 'Adicionar Entrada'}
       </Button>
     </form>
   );

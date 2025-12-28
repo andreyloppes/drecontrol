@@ -4,7 +4,9 @@ import { StatsCard } from '@/components/StatsCard';
 import { MonthlyTable } from '@/components/MonthlyTable';
 import { TransactionList } from '@/components/TransactionList';
 import { MonthFilter } from '@/components/MonthFilter';
-import { Wallet, TrendingUp, Clock, Calendar, Briefcase, RefreshCw } from 'lucide-react';
+import { DFCChart } from '@/components/DFCChart';
+import { AIAssistant } from '@/components/AIAssistant';
+import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw } from 'lucide-react';
 
 const Index = () => {
   const {
@@ -18,6 +20,7 @@ const Index = () => {
     monthlyData,
     totalCaixa,
     selectedMonthStats,
+    dfcData,
   } = useFinance();
 
   return (
@@ -34,16 +37,20 @@ const Index = () => {
 
       <main className="container py-8 space-y-8">
         {/* Month Filter */}
-        <section>
+        <section className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
           <MonthFilter
             selectedMonth={selectedMonth}
             onMonthChange={setSelectedMonth}
             availableMonths={availableMonths}
           />
+          {/* Assistente IA */}
+          <div className="w-full md:w-1/2 lg:w-1/3">
+            <AIAssistant onAddTransaction={addTransaction} />
+          </div>
         </section>
 
         {/* Stats Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
             title="Caixa Total"
             value={totalCaixa}
@@ -53,56 +60,71 @@ const Index = () => {
           <StatsCard
             title="Recebido (Mês)"
             value={selectedMonthStats.recebido}
-            icon={<TrendingUp className="w-5 h-5" />}
+            icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
           />
           <StatsCard
-            title="Pendente (Mês)"
+            title="Despesas (Mês)"
+            value={selectedMonthStats.despesas}
+            icon={<TrendingDown className="w-5 h-5 text-red-500" />}
+          />
+          <StatsCard
+            title="Projetado (Mês)"
+            value={selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto - selectedMonthStats.despesas}
+            icon={<Calendar className="w-5 h-5" />}
+          />
+        </section>
+
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatsCard
+            title="Pendente (Entrar)"
             value={selectedMonthStats.pendente}
             icon={<Clock className="w-5 h-5" />}
           />
           <StatsCard
-            title="Previsto (Mês)"
-            value={selectedMonthStats.previsto}
-            icon={<Calendar className="w-5 h-5" />}
-          />
-          <StatsCard
-            title="Projetos (Mês)"
+            title="Projetos (Receita)"
             value={selectedMonthStats.projetos}
             icon={<Briefcase className="w-5 h-5" />}
           />
           <StatsCard
-            title="Recorrência (Mês)"
+            title="Recorrência (Receita)"
             value={selectedMonthStats.recorrencia}
             icon={<RefreshCw className="w-5 h-5" />}
           />
         </section>
 
-        {/* Add Transaction */}
+        {/* DFC Chart */}
         <section>
-          <h2 className="text-2xl font-bold mb-4 border-b-2 border-foreground pb-2">
-            Nova Entrada
-          </h2>
-          <div className="border-2 border-foreground p-6 shadow-sm">
-            <AddTransactionForm onAdd={addTransaction} />
-          </div>
+          <DFCChart data={dfcData} />
         </section>
 
-        {/* Monthly Summary */}
-        <section>
-          <h2 className="text-2xl font-bold mb-4 border-b-2 border-foreground pb-2">
-            Resumo Mensal
-          </h2>
-          <MonthlyTable data={monthlyData} />
-        </section>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Add Transaction */}
+          <section>
+            <h2 className="text-2xl font-bold mb-4 border-b-2 border-foreground pb-2">
+              Nova Transação
+            </h2>
+            <div className="border-2 border-foreground p-6 shadow-sm h-fit">
+              <AddTransactionForm onAdd={addTransaction} />
+            </div>
+          </section>
+
+          {/* Monthly Summary */}
+          <section>
+            <h2 className="text-2xl font-bold mb-4 border-b-2 border-foreground pb-2">
+              Resumo Mensal
+            </h2>
+            <MonthlyTable data={monthlyData} />
+          </section>
+        </div>
 
         {/* Transactions for Selected Month */}
         {filteredTransactions.length > 0 && (
           <section>
             <h2 className="text-2xl font-bold mb-4 border-b-2 border-foreground pb-2">
-              Entradas do Mês
+              Extrato do Mês
             </h2>
-            <TransactionList 
-              transactions={filteredTransactions} 
+            <TransactionList
+              transactions={filteredTransactions}
               onDelete={deleteTransaction}
               onUpdateStatus={updateTransactionStatus}
             />
