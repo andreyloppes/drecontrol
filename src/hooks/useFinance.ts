@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Transaction, MonthlyData, PaymentStatus } from '@/types/finance';
 
 const STORAGE_KEY = 'dre-transactions';
@@ -14,6 +14,10 @@ export function useFinance() {
       status: t.status || 'recebido',
     }));
   });
+
+  const [selectedMonth, setSelectedMonth] = useState(() => 
+    new Date().toISOString().substring(0, 7)
+  );
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
@@ -39,6 +43,18 @@ export function useFinance() {
     );
   };
 
+  // Available months from transactions
+  const availableMonths = useMemo(() => {
+    const months = new Set(transactions.map((t) => t.month));
+    months.add(new Date().toISOString().substring(0, 7)); // Always include current month
+    return Array.from(months).sort((a, b) => b.localeCompare(a));
+  }, [transactions]);
+
+  // Filtered transactions by selected month
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((t) => t.month === selectedMonth);
+  }, [transactions, selectedMonth]);
+
   const monthlyData = useMemo((): MonthlyData[] => {
     const grouped: Record<string, MonthlyData> = {};
 
@@ -59,56 +75,51 @@ export function useFinance() {
     return Object.values(grouped).sort((a, b) => b.month.localeCompare(a.month));
   }, [transactions]);
 
+  // Total cash (all time, only received)
   const totalCaixa = useMemo(() => {
     return transactions
       .filter((t) => t.status === 'recebido')
       .reduce((acc, t) => acc + t.amount, 0);
   }, [transactions]);
 
-  const totalPendente = useMemo(() => {
-    return transactions
-      .filter((t) => t.status === 'pendente')
-      .reduce((acc, t) => acc + t.amount, 0);
+  // Stats for selected month
+  const getMonthStats = useCallback((month: string) => {
+    const monthTransactions = transactions.filter((t) => t.month === month);
+    
+    return {
+      recebido: monthTransactions
+        .filter((t) => t.status === 'recebido')
+        .reduce((acc, t) => acc + t.amount, 0),
+      pendente: monthTransactions
+        .filter((t) => t.status === 'pendente')
+        .reduce((acc, t) => acc + t.amount, 0),
+      previsto: monthTransactions
+        .filter((t) => t.status === 'previsto')
+        .reduce((acc, t) => acc + t.amount, 0),
+      projetos: monthTransactions
+        .filter((t) => t.type === 'projeto' && t.status === 'recebido')
+        .reduce((acc, t) => acc + t.amount, 0),
+      recorrencia: monthTransactions
+        .filter((t) => t.type === 'recorrencia' && t.status === 'recebido')
+        .reduce((acc, t) => acc + t.amount, 0),
+    };
   }, [transactions]);
 
-  const totalPrevisto = useMemo(() => {
-    return transactions
-      .filter((t) => t.status === 'previsto')
-      .reduce((acc, t) => acc + t.amount, 0);
-  }, [transactions]);
-
-  const currentMonthTotal = useMemo(() => {
-    const currentMonth = new Date().toISOString().substring(0, 7);
-    return transactions
-      .filter((t) => t.month === currentMonth && t.status === 'recebido')
-      .reduce((acc, t) => acc + t.amount, 0);
-  }, [transactions]);
-
-  const currentMonthProjetos = useMemo(() => {
-    const currentMonth = new Date().toISOString().substring(0, 7);
-    return transactions
-      .filter((t) => t.month === currentMonth && t.type === 'projeto' && t.status === 'recebido')
-      .reduce((acc, t) => acc + t.amount, 0);
-  }, [transactions]);
-
-  const currentMonthRecorrencia = useMemo(() => {
-    const currentMonth = new Date().toISOString().substring(0, 7);
-    return transactions
-      .filter((t) => t.month === currentMonth && t.type === 'recorrencia' && t.status === 'recebido')
-      .reduce((acc, t) => acc + t.amount, 0);
-  }, [transactions]);
+  const selectedMonthStats = useMemo(() => {
+    return getMonthStats(selectedMonth);
+  }, [selectedMonth, getMonthStats]);
 
   return {
     transactions,
+    filteredTransactions,
+    selectedMonth,
+    setSelectedMonth,
+    availableMonths,
     addTransaction,
     deleteTransaction,
     updateTransactionStatus,
     monthlyData,
     totalCaixa,
-    totalPendente,
-    totalPrevisto,
-    currentMonthTotal,
-    currentMonthProjetos,
-    currentMonthRecorrencia,
+    selectedMonthStats,
   };
 }
