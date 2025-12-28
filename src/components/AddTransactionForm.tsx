@@ -2,17 +2,18 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TransactionType } from '@/types/finance';
+import { TransactionType, PaymentStatus } from '@/types/finance';
 import { Plus } from 'lucide-react';
 
 interface AddTransactionFormProps {
-  onAdd: (transaction: { description: string; amount: number; type: TransactionType; date: string }) => void;
+  onAdd: (transaction: { description: string; amount: number; type: TransactionType; status: PaymentStatus; date: string }) => void;
 }
 
 export function AddTransactionForm({ onAdd }: AddTransactionFormProps) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<TransactionType>('projeto');
+  const [status, setStatus] = useState<PaymentStatus>('recebido');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -23,12 +24,20 @@ export function AddTransactionForm({ onAdd }: AddTransactionFormProps) {
       description,
       amount: parseFloat(amount),
       type,
+      status,
       date,
     });
 
     setDescription('');
     setAmount('');
   };
+
+  const statusOptions: { value: PaymentStatus; label: string }[] = [
+    { value: 'recebido', label: 'Recebido' },
+    { value: 'pendente', label: 'Pendente' },
+    { value: 'previsto', label: 'Previsto' },
+    { value: 'cancelado', label: 'Cancelado' },
+  ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -88,6 +97,23 @@ export function AddTransactionForm({ onAdd }: AddTransactionFormProps) {
             onChange={(e) => setDate(e.target.value)}
             className="border-2"
           />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Status</Label>
+        <div className="flex flex-wrap gap-2">
+          {statusOptions.map((opt) => (
+            <Button
+              key={opt.value}
+              type="button"
+              variant={status === opt.value ? 'default' : 'outline'}
+              onClick={() => setStatus(opt.value)}
+              className="flex-1 min-w-[100px] border-2"
+            >
+              {opt.label}
+            </Button>
+          ))}
         </div>
       </div>
 
