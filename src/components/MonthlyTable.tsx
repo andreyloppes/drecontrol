@@ -38,8 +38,8 @@ export function MonthlyTable({ data }: MonthlyTableProps) {
   }
 
   return (
-    <div className="border-2 border-foreground overflow-hidden">
-      <Table>
+    <div className="border-2 border-foreground overflow-hidden overflow-x-auto">
+      <Table className="min-w-[500px]">
         <TableHeader>
           <TableRow className="border-b-2 border-foreground bg-secondary">
             <TableHead className="font-bold text-foreground">Mês</TableHead>

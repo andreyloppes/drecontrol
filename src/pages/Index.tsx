@@ -40,7 +40,7 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="container py-8 space-y-8">
+      <main className="container py-4 md:py-8 space-y-6 md:space-y-8">
         {/* Month Filter */}
         <section className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
           <MonthFilter
@@ -54,35 +54,41 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Stats Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard
-            title="Saldo (Mês)"
-            value={(selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto) - (selectedMonthStats.despesas + (selectedMonthStats.despesasPrevistas ?? 0))}
-            icon={<Wallet className="w-5 h-5" />}
-            variant="highlight"
-            description="Receita Total - Despesas"
-          />
+        {/* Stats Grid - Mobile Optimized: 2 columns for better density, Highlight card spans full width */}
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <div className="col-span-2 lg:col-span-1">
+            <StatsCard
+              title="Saldo (Mês)"
+              value={(selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto) - (selectedMonthStats.despesas + (selectedMonthStats.despesasPrevistas ?? 0))}
+              icon={<Wallet className="w-5 h-5" />}
+              variant="highlight"
+              description="Receita Total - Despesas"
+            />
+          </div>
           <StatsCard
             title="Recebido (Mês)"
             value={selectedMonthStats.recebido}
             icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
           />
-          <StatsCard
-            title="Despesas (Mês)"
-            value={Math.abs(selectedMonthStats.despesas + (selectedMonthStats.despesasPrevistas ?? 0))}
-            icon={<TrendingDown className="w-5 h-5 text-red-500" />}
-            description={`Pago: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.despesas)} | Prev: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.despesasPrevistas ?? 0)}`}
-          />
-          <StatsCard
-            title="Receita Total (Mês)"
-            value={selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto}
-            icon={<Calendar className="w-5 h-5" />}
-            description={`Realizado: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.recebido)} | Prev: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.pendente + selectedMonthStats.previsto)}`}
-          />
+          <div className="col-span-2 lg:col-span-1">
+            <StatsCard
+              title="Despesas (Mês)"
+              value={Math.abs(selectedMonthStats.despesas + (selectedMonthStats.despesasPrevistas ?? 0))}
+              icon={<TrendingDown className="w-5 h-5 text-red-500" />}
+              description={`Pago: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.despesas)} | Prev: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.despesasPrevistas ?? 0)}`}
+            />
+          </div>
+          <div className="col-span-2 lg:col-span-1">
+            <StatsCard
+              title="Receita Total (Mês)"
+              value={selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto}
+              icon={<Calendar className="w-5 h-5" />}
+              description={`Realizado: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.recebido)} | Prev: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.pendente + selectedMonthStats.previsto)}`}
+            />
+          </div>
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <section className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
           <StatsCard
             title="Pendente (Entrar)"
             value={selectedMonthStats.pendente}
@@ -93,11 +99,13 @@ const Index = () => {
             value={selectedMonthStats.projetos}
             icon={<Briefcase className="w-5 h-5" />}
           />
-          <StatsCard
-            title="Recorrência (Receita)"
-            value={selectedMonthStats.recorrencia}
-            icon={<RefreshCw className="w-5 h-5" />}
-          />
+          <div className="col-span-2 md:col-span-1">
+            <StatsCard
+              title="Recorrência (Receita)"
+              value={selectedMonthStats.recorrencia}
+              icon={<RefreshCw className="w-5 h-5" />}
+            />
+          </div>
         </section>
 
         {/* DFC Chart */}
