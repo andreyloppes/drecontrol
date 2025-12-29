@@ -44,7 +44,7 @@ export function TransactionList({ transactions, onDelete, onUpdateStatus }: Tran
 
   return (
     <div className="space-y-2">
-      {sortedTransactions.slice(0, 10).map((t) => {
+      {sortedTransactions.map((t) => {
         const config = statusConfig[t.status];
         return (
           <div
@@ -52,9 +52,8 @@ export function TransactionList({ transactions, onDelete, onUpdateStatus }: Tran
             className="border-2 border-foreground p-4 flex items-center justify-between hover:shadow-sm transition-shadow"
           >
             <div className="flex items-center gap-4">
-              <div className={`p-2 border-2 border-foreground ${
-                t.type === 'projeto' ? 'bg-secondary' : 'bg-foreground text-background'
-              }`}>
+              <div className={`p-2 border-2 border-foreground ${t.type === 'projeto' ? 'bg-secondary' : 'bg-foreground text-background'
+                }`}>
                 {t.type === 'projeto' ? (
                   <Briefcase className="w-4 h-4" />
                 ) : (
@@ -63,8 +62,13 @@ export function TransactionList({ transactions, onDelete, onUpdateStatus }: Tran
               </div>
               <div>
                 <p className="font-medium">{t.description}</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
                   {formatDate(t.date)} • {t.type === 'projeto' ? 'Projeto' : 'Recorrência'}
+                  {t.category && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-muted text-muted-foreground border">
+                      {t.category}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>

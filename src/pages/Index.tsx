@@ -6,7 +6,8 @@ import { TransactionList } from '@/components/TransactionList';
 import { MonthFilter } from '@/components/MonthFilter';
 import { DFCChart } from '@/components/DFCChart';
 import { AIAssistant } from '@/components/AIAssistant';
-import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw, Database } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw, Database, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 const Index = () => {
   const {
@@ -21,6 +22,8 @@ const Index = () => {
     totalCaixa,
     selectedMonthStats,
     dfcData,
+    searchTerm,
+    setSearchTerm
   } = useFinance();
 
   return (
@@ -134,16 +137,35 @@ const Index = () => {
         </div>
 
         {/* Transactions for Selected Month */}
-        {filteredTransactions.length > 0 && (
+        {/* Transactions / Search Results */}
+        {(filteredTransactions.length > 0 || searchTerm) && (
           <section>
-            <h2 className="text-2xl font-bold mb-4 border-b-2 border-foreground pb-2">
-              Extrato do Mês
-            </h2>
-            <TransactionList
-              transactions={filteredTransactions}
-              onDelete={deleteTransaction}
-              onUpdateStatus={updateTransactionStatus}
-            />
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4 border-b-2 border-foreground pb-2">
+              <h2 className="text-2xl font-bold">
+                {searchTerm ? 'Resultado da Busca' : 'Extrato do Mês'}
+              </h2>
+              <div className="relative w-full md:w-64">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar transação..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8 h-9"
+                />
+              </div>
+            </div>
+
+            {filteredTransactions.length === 0 && searchTerm ? (
+              <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-foreground/20">
+                Nenhuma transação encontrada para "{searchTerm}".
+              </div>
+            ) : (
+              <TransactionList
+                transactions={filteredTransactions}
+                onDelete={deleteTransaction}
+                onUpdateStatus={updateTransactionStatus}
+              />
+            )}
           </section>
         )}
       </main>
