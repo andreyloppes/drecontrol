@@ -1,18 +1,27 @@
+import { useState } from 'react';
 import { Transaction, PaymentStatus } from '@/types/finance';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Briefcase, RefreshCw, Check, Clock, Calendar, X } from 'lucide-react';
+import { Trash2, Briefcase, RefreshCw, Check, Clock, Calendar, X, Pencil } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { AddTransactionForm } from './AddTransactionForm';
 
 interface TransactionListProps {
   transactions: Transaction[];
   onDelete: (id: string) => void;
   onUpdateStatus: (id: string, status: PaymentStatus) => void;
+  onEdit: (id: string, updates: Partial<Transaction>) => void;
 }
 
 const statusConfig: Record<PaymentStatus, { label: string; variant: 'default' | 'secondary' | 'outline' | 'destructive'; icon: React.ReactNode; className: string }> = {
@@ -22,7 +31,10 @@ const statusConfig: Record<PaymentStatus, { label: string; variant: 'default' | 
   cancelado: { label: 'Cancelado', variant: 'destructive', icon: <X className="w-3 h-3" />, className: 'bg-destructive hover:bg-destructive/80 text-destructive-foreground' },
 };
 
-export function TransactionList({ transactions, onDelete, onUpdateStatus }: TransactionListProps) {
+export function TransactionList({ transactions, onDelete, onUpdateStatus, onEdit }: TransactionListProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -44,6 +56,24 @@ export function TransactionList({ transactions, onDelete, onUpdateStatus }: Tran
 
   return (
     <div className="space-y-2">
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Transação</DialogTitle>
+          </DialogHeader>
+          {editingId && (
+            <AddTransactionForm
+              initialData={transactions.find(t => t.id === editingId)}
+              onAdd={(updates) => {
+                onEdit(editingId, updates);
+                setIsDialogOpen(false);
+                setEditingId(null);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {sortedTransactions.map((t) => {
         const config = statusConfig[t.status];
         return (
@@ -73,6 +103,18 @@ export function TransactionList({ transactions, onDelete, onUpdateStatus }: Tran
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {(t.status === 'pendente' || t.status === 'previsto') && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 h-8 w-8"
+                  title="Marcar como Recebido/Pago"
+                  onClick={() => onUpdateStatus(t.id, 'recebido')}
+                >
+                  <Check className="w-4 h-4" />
+                </Button>
+              )}
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Badge className={`cursor-pointer gap-1 ${config.className}`}>
@@ -93,7 +135,21 @@ export function TransactionList({ transactions, onDelete, onUpdateStatus }: Tran
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+
               <span className="font-mono font-bold text-lg">{formatCurrency(t.amount)}</span>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setEditingId(t.id);
+                  setIsDialogOpen(true);
+                }}
+                className="border-2 border-foreground hover:bg-muted"
+              >
+                <Pencil className="w-4 h-4" />
+              </Button>
+
               <Button
                 variant="ghost"
                 size="icon"
