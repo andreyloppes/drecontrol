@@ -109,6 +109,45 @@ export function useFinance() {
     }
   };
 
+  const editTransaction = async (id: string, updates: Partial<Transaction>) => {
+    // Recalculate 'amount' if needed based on type (handled by form usually, but good to be safe if updates contains amount/type)
+    // For simplicity, we assume 'updates' comes prepared properly OR we don't mess with sign here if not needed.
+    // However, AddTransactionForm logic regarding negative sign for expenses is important.
+    // Let's assume the form passes the absolute amount and the type, so we might need to adjust sign if `amount` is present.
+
+    let processedUpdates = { ...updates };
+    if (updates.amount !== undefined && updates.type !== undefined) {
+      processedUpdates.amount = updates.type === 'despesa' ? -Math.abs(updates.amount) : Math.abs(updates.amount);
+    } else if (updates.amount !== undefined) {
+      // If type isn't changing but amount is, we need to know the current type to sign it correctly?
+      // This gets tricky. It's better if the Form sends the FINAL signed amount or we find the transaction.
+      // For safety, let's look up the transaction to check type if not in updates.
+      const target = transactions.find(t => t.id === id);
+      if (target) {
+        const type = updates.type || target.type;
+        processedUpdates.amount = type === 'despesa' ? -Math.abs(updates.amount) : Math.abs(updates.amount);
+      }
+    }
+
+    // Also update month if date changed
+    if (updates.date) {
+      processedUpdates.month = updates.date.substring(0, 7);
+    }
+
+    if (isConnected && client) {
+      const { error } = await client.from('transactions').update(processedUpdates).eq('id', id);
+      if (error) {
+        toast.error(`Erro ao editar: ${error.message}`);
+      } else {
+        setRemoteTransactions(prev => prev.map(t => t.id === id ? { ...t, ...processedUpdates } : t));
+        toast.success('Transação atualizada');
+      }
+    } else {
+      setLocalTransactions(prev => prev.map(t => t.id === id ? { ...t, ...processedUpdates } : t));
+      toast.success('Editado localmente');
+    }
+  };
+
   const updateTransactionStatus = async (id: string, status: PaymentStatus) => {
     if (isConnected && client) {
       const { error } = await client.from('transactions').update({ status }).eq('id', id);

@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TransactionType, PaymentStatus } from '@/types/finance';
-import { Plus } from 'lucide-react';
+import { Transaction, TransactionType, PaymentStatus } from '@/types/finance';
+import { Plus, Save } from 'lucide-react';
 
 interface AddTransactionFormProps {
   onAdd: (transaction: { description: string; amount: number; type: TransactionType; status: PaymentStatus; date: string; category: string }) => void;
+  initialData?: Transaction;
 }
 
-export function AddTransactionForm({ onAdd }: AddTransactionFormProps) {
+export function AddTransactionForm({ onAdd, initialData }: AddTransactionFormProps) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<TransactionType>('projeto');
@@ -17,22 +18,36 @@ export function AddTransactionForm({ onAdd }: AddTransactionFormProps) {
   const [status, setStatus] = useState<PaymentStatus>('recebido');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
+  useEffect(() => {
+    if (initialData) {
+      setDescription(initialData.description);
+      // Important: Absolute value for editing, as the input expects positive numbers usually
+      setAmount(Math.abs(initialData.amount).toString());
+      setType(initialData.type);
+      setCategory(initialData.category || '');
+      setStatus(initialData.status);
+      setDate(initialData.date);
+    }
+  }, [initialData]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!description || !amount) return;
 
     onAdd({
       description,
-      amount: parseFloat(amount),
+      amount: parseFloat(amount), // Passed as positive number, logic in useFinance/Wrapper handles sign based on type
       type,
       category: category || (type === 'despesa' ? 'Geral' : 'Vendas'),
       status,
       date,
     });
 
-    setDescription('');
-    setAmount('');
-    setCategory('');
+    if (!initialData) {
+      setDescription('');
+      setAmount('');
+      setCategory('');
+    }
   };
 
   const statusOptions: { value: PaymentStatus; label: string }[] = [
@@ -140,8 +155,8 @@ export function AddTransactionForm({ onAdd }: AddTransactionFormProps) {
       </div>
 
       <Button type="submit" className={`w-full border-2 shadow-sm hover:shadow-md transition-shadow ${type === 'despesa' ? 'bg-destructive hover:bg-destructive/90' : ''}`}>
-        <Plus className="w-4 h-4 mr-2" />
-        {type === 'despesa' ? 'Adicionar Despesa' : 'Adicionar Entrada'}
+        {initialData ? <Save className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+        {initialData ? 'Salvar Alterações' : (type === 'despesa' ? 'Adicionar Despesa' : 'Adicionar Entrada')}
       </Button>
     </form>
   );

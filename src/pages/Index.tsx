@@ -23,7 +23,8 @@ const Index = () => {
     selectedMonthStats,
     dfcData,
     searchTerm,
-    setSearchTerm
+    setSearchTerm,
+    editTransaction
   } = useFinance();
 
   return (
@@ -164,6 +165,7 @@ const Index = () => {
                 transactions={filteredTransactions}
                 onDelete={deleteTransaction}
                 onUpdateStatus={updateTransactionStatus}
+                onEdit={editTransaction}
               />
             )}
           </section>
