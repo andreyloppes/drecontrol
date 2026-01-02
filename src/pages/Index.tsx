@@ -9,6 +9,8 @@ import { AIAssistant } from '@/components/AIAssistant';
 import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw, Database, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
+import { ThemeToggle } from '@/components/ThemeToggle';
+
 const Index = () => {
   const {
     filteredTransactions,
@@ -28,154 +30,191 @@ const Index = () => {
   } = useFinance();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Background Futuristic Elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/10 blur-[120px] rounded-full animate-float" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 blur-[120px] rounded-full animate-float" style={{ animationDelay: '-3s' }} />
+        <div className="absolute inset-0 cyber-grid opacity-[0.03] dark:opacity-[0.05]" />
+      </div>
+
       {/* Header */}
-      <header className="border-b-2 border-foreground">
-        <div className="container py-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight">DRE Control</h1>
-            <p className="text-muted-foreground mt-1">
-              Controle financeiro • Tech • Automação • IA
+      <header className="sticky top-0 z-50 glass border-b border-white/10">
+        <div className="container py-4 flex justify-between items-center">
+          <div className="flex flex-col">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tighter bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              DRE Control
+            </h1>
+            <p className="text-[10px] md:text-sm text-muted-foreground uppercase tracking-widest font-mono">
+              FINANCE ENGINE <span className="text-cyan-500">•</span> AI ENABLED
             </p>
           </div>
-          <a href="/settings" className="p-2 hover:bg-accent rounded-full text-foreground transition-colors" title="Conectar Banco de Dados">
-            <Database className="w-6 h-6" />
-          </a>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <a href="/settings" className="p-2.5 glass-morphism hover:bg-accent rounded-full text-foreground transition-all duration-300 hover:scale-110 active:scale-95" title="Conectar Banco de Dados">
+              <Database className="w-5 h-5" />
+            </a>
+          </div>
         </div>
       </header>
 
-      <main className="container py-4 md:py-8 space-y-6 md:space-y-8">
-        {/* Month Filter */}
-        <section className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-          <MonthFilter
-            selectedMonth={selectedMonth}
-            onMonthChange={setSelectedMonth}
-            availableMonths={availableMonths}
-          />
+      <main className="container relative z-10 py-6 md:py-10 space-y-8 md:space-y-12">
+        {/* Month Filter & AI */}
+        <section className="flex flex-col lg:flex-row gap-6 justify-between items-stretch lg:items-center">
+          <div className="glass p-1 rounded-2xl w-fit">
+            <MonthFilter
+              selectedMonth={selectedMonth}
+              onMonthChange={setSelectedMonth}
+              availableMonths={availableMonths}
+            />
+          </div>
           {/* Assistente IA */}
-          <div className="w-full md:w-1/2 lg:w-1/3">
+          <div className="w-full lg:w-2/5">
             <AIAssistant onAddTransaction={addTransaction} />
           </div>
         </section>
 
-        {/* Stats Grid - Mobile Optimized: 2 columns for better density, Highlight card spans full width */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <div className="col-span-2 lg:col-span-1">
-            <StatsCard
-              title="Saldo (Mês)"
-              value={(selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto) - (selectedMonthStats.despesas + (selectedMonthStats.despesasPrevistas ?? 0))}
-              icon={<Wallet className="w-5 h-5" />}
-              variant="highlight"
-              description="Receita Total - Despesas"
-            />
+        {/* Stats Grid */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-1 w-8 bg-cyan-500 rounded-full" />
+            <h2 className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Financial Dashboard</h2>
           </div>
-          <StatsCard
-            title="Recebido (Mês)"
-            value={selectedMonthStats.recebido}
-            icon={<TrendingUp className="w-5 h-5 text-emerald-500" />}
-          />
-          <div className="col-span-2 lg:col-span-1">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="col-span-2 lg:col-span-1">
+              <StatsCard
+                title="Saldo (Mês)"
+                value={(selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto) - (selectedMonthStats.despesas + (selectedMonthStats.despesasPrevistas ?? 0))}
+                icon={<Wallet className="w-5 h-5" />}
+                variant="highlight"
+                description="Receita Total - Despesas"
+              />
+            </div>
             <StatsCard
-              title="Despesas (Mês)"
-              value={Math.abs(selectedMonthStats.despesas + (selectedMonthStats.despesasPrevistas ?? 0))}
-              icon={<TrendingDown className="w-5 h-5 text-red-500" />}
-              description={`Pago: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.despesas)} | Prev: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.despesasPrevistas ?? 0)}`}
+              title="Recebido (Mês)"
+              value={selectedMonthStats.recebido}
+              icon={<TrendingUp className="w-5 h-5 text-emerald-400" />}
             />
+            <div className="col-span-2 lg:col-span-1">
+              <StatsCard
+                title="Despesas (Mês)"
+                value={Math.abs(selectedMonthStats.despesas + (selectedMonthStats.despesasPrevistas ?? 0))}
+                icon={<TrendingDown className="w-5 h-5 text-red-400" />}
+                description={`Pago: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.despesas)} | Prev: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.despesasPrevistas ?? 0)}`}
+              />
+            </div>
+            <div className="col-span-2 lg:col-span-1">
+              <StatsCard
+                title="Receita Total (Mês)"
+                value={selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto}
+                icon={<Calendar className="w-5 h-5" />}
+                description={`Realizado: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.recebido)} | Prev: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.pendente + selectedMonthStats.previsto)}`}
+              />
+            </div>
           </div>
-          <div className="col-span-2 lg:col-span-1">
-            <StatsCard
-              title="Receita Total (Mês)"
-              value={selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto}
-              icon={<Calendar className="w-5 h-5" />}
-              description={`Realizado: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.recebido)} | Prev: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.pendente + selectedMonthStats.previsto)}`}
-            />
-          </div>
-        </section>
 
-        <section className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-          <StatsCard
-            title="Pendente (Entrar)"
-            value={selectedMonthStats.pendente}
-            icon={<Clock className="w-5 h-5" />}
-          />
-          <StatsCard
-            title="Projetos (Receita)"
-            value={selectedMonthStats.projetos}
-            icon={<Briefcase className="w-5 h-5" />}
-          />
-          <div className="col-span-2 md:col-span-1">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             <StatsCard
-              title="Recorrência (Receita)"
-              value={selectedMonthStats.recorrencia}
-              icon={<RefreshCw className="w-5 h-5" />}
+              title="Pendente (Entrar)"
+              value={selectedMonthStats.pendente}
+              icon={<Clock className="w-5 h-5" />}
             />
+            <StatsCard
+              title="Projetos (Receita)"
+              value={selectedMonthStats.projetos}
+              icon={<Briefcase className="w-5 h-5" />}
+            />
+            <div className="col-span-2 lg:col-span-1">
+              <StatsCard
+                title="Recorrência (Receita)"
+                value={selectedMonthStats.recorrencia}
+                icon={<RefreshCw className="w-5 h-5" />}
+              />
+            </div>
           </div>
         </section>
 
         {/* DFC Chart */}
-        <section>
+        <section className="glass rounded-3xl p-6 border border-white/5">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="h-1 w-8 bg-purple-500 rounded-full" />
+            <h2 className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Cash Flow Projection</h2>
+          </div>
           <DFCChart data={dfcData} />
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Add Transaction */}
-          <section>
-            <h2 className="text-2xl font-bold mb-4 border-b-2 border-foreground pb-2">
+          <section className="space-y-4">
+            <h2 className="text-xl font-bold tracking-tight px-1">
               Nova Transação
             </h2>
-            <div className="border-2 border-foreground p-6 shadow-sm h-fit">
+            <div className="glass p-6 rounded-3xl border border-white/5 h-fit">
               <AddTransactionForm onAdd={addTransaction} />
             </div>
           </section>
 
           {/* Monthly Summary */}
-          <section>
-            <h2 className="text-2xl font-bold mb-4 border-b-2 border-foreground pb-2">
+          <section className="space-y-4">
+            <h2 className="text-xl font-bold tracking-tight px-1">
               Resumo Mensal
             </h2>
-            <MonthlyTable data={monthlyData} />
+            <div className="glass rounded-3xl border border-white/5 overflow-hidden">
+              <MonthlyTable data={monthlyData} />
+            </div>
           </section>
         </div>
 
-        {/* Transactions for Selected Month */}
-        {/* Transactions / Search Results */}
+        {/* Transactions / Extrato */}
         {(filteredTransactions.length > 0 || searchTerm) && (
-          <section>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4 border-b-2 border-foreground pb-2">
-              <h2 className="text-2xl font-bold">
-                {searchTerm ? 'Resultado da Busca' : 'Extrato do Mês'}
-              </h2>
-              <div className="relative w-full md:w-64">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <section className="space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-1">
+              <div className="flex items-center gap-2">
+                <div className="h-1 w-8 bg-cyan-500 rounded-full" />
+                <h2 className="text-xl font-bold tracking-tight">
+                  {searchTerm ? 'Resultado da Busca' : 'Extrato do Mês'}
+                </h2>
+              </div>
+              <div className="relative w-full md:w-80">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar transação..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8 h-9"
+                  className="pl-10 h-11 bg-background/50 border-white/10 rounded-2xl focus:ring-cyan-500/50"
                 />
               </div>
             </div>
 
-            {filteredTransactions.length === 0 && searchTerm ? (
-              <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-foreground/20">
-                Nenhuma transação encontrada para "{searchTerm}".
-              </div>
-            ) : (
-              <TransactionList
-                transactions={filteredTransactions}
-                onDelete={deleteTransaction}
-                onUpdateStatus={updateTransactionStatus}
-                onEdit={editTransaction}
-              />
-            )}
+            <div className="glass rounded-3xl border border-white/5 overflow-hidden">
+              {filteredTransactions.length === 0 && searchTerm ? (
+                <div className="text-center py-16 text-muted-foreground">
+                  <p className="text-lg">Nenhuma transação encontrada</p>
+                  <p className="text-sm opacity-60">Tente buscar por outro termo.</p>
+                </div>
+              ) : (
+                <TransactionList
+                  transactions={filteredTransactions}
+                  onDelete={deleteTransaction}
+                  onUpdateStatus={updateTransactionStatus}
+                  onEdit={editTransaction}
+                />
+              )}
+            </div>
           </section>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="border-t-2 border-foreground mt-8">
-        <div className="container py-4 text-center text-sm text-muted-foreground">
-          DRE Control © {new Date().getFullYear()}
+      <footer className="border-t border-white/10 mt-12 bg-background/50 backdrop-blur-sm">
+        <div className="container py-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex flex-col items-center md:items-start text-center md:text-left">
+            <p className="text-sm font-bold tracking-tighter uppercase">DRE Control</p>
+            <p className="text-[10px] text-muted-foreground font-mono">NEXT GEN FINANCIAL OS</p>
+          </div>
+          <div className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-[0.2em] font-mono">
+            © {new Date().getFullYear()} • SYSTEM ONLINE
+          </div>
         </div>
       </footer>
     </div>

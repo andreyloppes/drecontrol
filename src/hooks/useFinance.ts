@@ -163,6 +163,8 @@ export function useFinance() {
     }
   };
 
+  const [searchTerm, setSearchTerm] = useState('');
+
   // Available months from transactions
   const availableMonths = useMemo(() => {
     const months = new Set(transactions.map((t) => t.month));
@@ -176,10 +178,19 @@ export function useFinance() {
     return Array.from(months).sort((a, b) => b.localeCompare(a));
   }, [transactions]);
 
-  // Filtered transactions by selected month
+  // Filtered transactions by selected month AND search term
   const filteredTransactions = useMemo(() => {
-    return transactions.filter((t) => t.month === selectedMonth);
-  }, [transactions, selectedMonth]);
+    let base = transactions;
+    if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
+      return base.filter(t =>
+        t.description.toLowerCase().includes(lowerSearch) ||
+        (t.category || '').toLowerCase().includes(lowerSearch) ||
+        t.type.toLowerCase().includes(lowerSearch)
+      );
+    }
+    return base.filter((t) => t.month === selectedMonth);
+  }, [transactions, selectedMonth, searchTerm]);
 
   const monthlyData = useMemo((): MonthlyData[] => {
     const grouped: Record<string, MonthlyData> = {};
@@ -331,6 +342,9 @@ export function useFinance() {
     addTransaction,
     deleteTransaction,
     updateTransactionStatus,
+    editTransaction,
+    searchTerm,
+    setSearchTerm,
     monthlyData,
     totalCaixa,
     selectedMonthStats,

@@ -31,30 +31,30 @@ export function MonthlyTable({ data }: MonthlyTableProps) {
 
   if (data.length === 0) {
     return (
-      <div className="border-2 border-foreground p-8 text-center">
-        <p className="text-muted-foreground">Nenhuma entrada registrada ainda.</p>
+      <div className="glass p-12 text-center rounded-3xl border border-white/5">
+        <p className="text-muted-foreground font-mono uppercase tracking-widest text-xs">Sem dados processados</p>
       </div>
     );
   }
 
   return (
-    <div className="border-2 border-foreground overflow-hidden overflow-x-auto">
+    <div className="overflow-x-auto">
       <Table className="min-w-[500px]">
         <TableHeader>
-          <TableRow className="border-b-2 border-foreground bg-secondary">
-            <TableHead className="font-bold text-foreground">Mês</TableHead>
-            <TableHead className="font-bold text-foreground text-right">Receita Prevista</TableHead>
-            <TableHead className="font-bold text-foreground text-right">Despesa Prevista</TableHead>
-            <TableHead className="font-bold text-foreground text-right">Resultado Esperado</TableHead>
+          <TableRow className="border-b border-white/10 hover:bg-transparent">
+            <TableHead className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Mês</TableHead>
+            <TableHead className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground text-right">Receita Prevista</TableHead>
+            <TableHead className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground text-right">Despesa Prevista</TableHead>
+            <TableHead className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground text-right">Resultado</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((row) => (
-            <TableRow key={row.month} className="border-b border-foreground/20">
-              <TableCell className="font-medium">{formatMonth(row.month)}</TableCell>
-              <TableCell className="text-right font-mono text-emerald-600">{formatCurrency(row.receita)}</TableCell>
-              <TableCell className="text-right font-mono text-red-600">{formatCurrency(row.despesas)}</TableCell>
-              <TableCell className={`text-right font-mono font-bold ${row.saldo >= 0 ? 'text-primary' : 'text-red-600'}`}>
+            <TableRow key={row.month} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+              <TableCell className="font-semibold py-4">{formatMonth(row.month)}</TableCell>
+              <TableCell className="text-right font-mono text-emerald-400 font-bold">{formatCurrency(row.receita)}</TableCell>
+              <TableCell className="text-right font-mono text-red-400 font-bold">{formatCurrency(row.despesas)}</TableCell>
+              <TableCell className={`text-right font-mono font-bold text-lg tracking-tighter ${row.saldo >= 0 ? 'text-cyan-400' : 'text-red-500'}`}>
                 {formatCurrency(row.saldo)}
               </TableCell>
             </TableRow>

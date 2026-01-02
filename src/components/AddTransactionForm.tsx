@@ -58,20 +58,20 @@ export function AddTransactionForm({ onAdd, initialData }: AddTransactionFormPro
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="description">Descrição</Label>
+          <Label htmlFor="description" className="text-xs uppercase tracking-widest text-muted-foreground ml-1">Descrição</Label>
           <Input
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder={type === 'despesa' ? "Ex: Conta de Luz" : "Ex: Projeto Automação PPP"}
-            className="border-2"
+            placeholder={type === 'despesa' ? "Ex: Amazon Web Services" : "Ex: Projeto Neural Engine"}
+            className="bg-white/5 border-white/10 rounded-xl px-4 py-6 focus:ring-purple-500/50 transition-all placeholder:text-muted-foreground/30"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="amount">Valor (R$)</Label>
+          <Label htmlFor="amount" className="text-xs uppercase tracking-widest text-muted-foreground ml-1">Valor (R$)</Label>
           <Input
             id="amount"
             type="number"
@@ -79,19 +79,20 @@ export function AddTransactionForm({ onAdd, initialData }: AddTransactionFormPro
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="0,00"
-            className="border-2"
+            className="bg-white/5 border-white/10 rounded-xl px-4 py-6 font-mono text-lg focus:ring-cyan-500/50 transition-all placeholder:text-muted-foreground/30"
           />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Tipo</Label>
-        <div className="flex gap-2">
+      <div className="space-y-3">
+        <Label className="text-xs uppercase tracking-widest text-muted-foreground ml-1">Tipo de Fluxo</Label>
+        <div className="grid grid-cols-3 gap-3">
           <Button
             type="button"
             variant={type === 'projeto' ? 'default' : 'outline'}
             onClick={() => setType('projeto')}
-            className="flex-1 border-2"
+            className={`rounded-2xl py-6 border-white/10 transition-all duration-300 ${type === 'projeto' ? 'bg-purple-600 hover:bg-purple-500 shadow-lg shadow-purple-500/20 ring-1 ring-purple-400/50' : 'bg-white/5 hover:bg-white/10'
+              }`}
           >
             Projeto
           </Button>
@@ -99,7 +100,8 @@ export function AddTransactionForm({ onAdd, initialData }: AddTransactionFormPro
             type="button"
             variant={type === 'recorrencia' ? 'default' : 'outline'}
             onClick={() => setType('recorrencia')}
-            className="flex-1 border-2"
+            className={`rounded-2xl py-6 border-white/10 transition-all duration-300 ${type === 'recorrencia' ? 'bg-cyan-600 hover:bg-cyan-500 shadow-lg shadow-cyan-500/20 ring-1 ring-cyan-400/50 text-white' : 'bg-white/5 hover:bg-white/10'
+              }`}
           >
             Recorrência
           </Button>
@@ -107,46 +109,50 @@ export function AddTransactionForm({ onAdd, initialData }: AddTransactionFormPro
             type="button"
             variant={type === 'despesa' ? 'destructive' : 'outline'}
             onClick={() => setType('despesa')}
-            className={`flex-1 border-2 ${type !== 'despesa' ? 'hover:bg-destructive/10 hover:text-destructive' : ''}`}
+            className={`rounded-2xl py-6 border-white/10 transition-all duration-300 ${type === 'despesa' ? 'bg-red-600 hover:bg-red-500 shadow-lg shadow-red-500/20 ring-1 ring-red-400/50' : 'bg-white/5 hover:bg-red-500/10'
+              }`}
           >
             Despesa
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
-          <Label htmlFor="category">Categoria</Label>
+          <Label htmlFor="category" className="text-xs uppercase tracking-widest text-muted-foreground ml-1">Categoria / Tag</Label>
           <Input
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            placeholder={type === 'despesa' ? "Ex: Escritório, Software" : "Ex: Cliente A, Consultoria"}
-            className="border-2"
+            placeholder={type === 'despesa' ? "Ex: Cloud, Marketing" : "Ex: Cliente Alpha"}
+            className="bg-white/5 border-white/10 rounded-xl px-4 py-6 focus:ring-purple-500/50 transition-all shadow-inner"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="date">Data</Label>
+          <Label htmlFor="date" className="text-xs uppercase tracking-widest text-muted-foreground ml-1">Data da Operação</Label>
           <Input
             id="date"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="border-2"
+            className="bg-white/5 border-white/10 rounded-xl px-4 py-6 focus:ring-cyan-500/50 transition-all [color-scheme:dark]"
           />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Status</Label>
-        <div className="flex flex-wrap gap-2">
+      <div className="space-y-3">
+        <Label className="text-xs uppercase tracking-widest text-muted-foreground ml-1">Status da Transação</Label>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
           {statusOptions.map((opt) => (
             <Button
               key={opt.value}
               type="button"
               variant={status === opt.value ? 'default' : 'outline'}
               onClick={() => setStatus(opt.value)}
-              className="flex-1 min-w-[100px] border-2"
+              className={`rounded-xl py-4 border-white/5 text-xs transition-all duration-200 ${status === opt.value
+                  ? (type === 'despesa' ? 'bg-red-600/20 text-red-100 ring-1 ring-red-500/40' : 'bg-emerald-600/20 text-emerald-100 ring-1 ring-emerald-500/40')
+                  : 'bg-white/5 hover:bg-white/10 text-muted-foreground'
+                }`}
             >
               {opt.label}
             </Button>
@@ -154,9 +160,15 @@ export function AddTransactionForm({ onAdd, initialData }: AddTransactionFormPro
         </div>
       </div>
 
-      <Button type="submit" className={`w-full border-2 shadow-sm hover:shadow-md transition-shadow ${type === 'despesa' ? 'bg-destructive hover:bg-destructive/90' : ''}`}>
-        {initialData ? <Save className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
-        {initialData ? 'Salvar Alterações' : (type === 'despesa' ? 'Adicionar Despesa' : 'Adicionar Entrada')}
+      <Button
+        type="submit"
+        className={`w-full py-8 rounded-2xl text-lg font-bold tracking-tight transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] shadow-xl ${type === 'despesa'
+            ? 'bg-gradient-to-r from-red-600 to-red-500 shadow-red-500/20'
+            : 'bg-gradient-to-r from-cyan-600 via-purple-600 to-purple-500 shadow-purple-500/20 text-white'
+          }`}
+      >
+        {initialData ? <Save className="w-6 h-6 mr-2" /> : <Plus className="w-6 h-6 mr-2" />}
+        <span className="uppercase tracking-[0.1em]">{initialData ? 'Confirmar Updates' : (type === 'despesa' ? 'Registrar Saída' : 'Registrar Entrada')}</span>
       </Button>
     </form>
   );
