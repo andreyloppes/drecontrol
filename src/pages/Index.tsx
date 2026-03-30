@@ -1,12 +1,14 @@
 import { useFinance } from '@/hooks/useFinance';
 import { AddTransactionForm } from '@/components/AddTransactionForm';
+import { BankStatementUpload } from '@/components/BankStatementUpload';
 import { StatsCard } from '@/components/StatsCard';
 import { MonthlyTable } from '@/components/MonthlyTable';
 import { TransactionList } from '@/components/TransactionList';
 import { MonthFilter } from '@/components/MonthFilter';
 import { DFCChart } from '@/components/DFCChart';
 import { AIAssistant } from '@/components/AIAssistant';
-import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw, Database, Search } from 'lucide-react';
+import { ParsedTransaction } from '@/lib/statement-parser';
+import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -26,8 +28,23 @@ const Index = () => {
     dfcData,
     searchTerm,
     setSearchTerm,
-    editTransaction
+    editTransaction,
+    bulkImport,
+    transactions
   } = useFinance();
+
+  const handleStatementImport = async (parsed: ParsedTransaction[]) => {
+    const entries = parsed.map(t => ({
+      date: t.date,
+      description: t.description,
+      amount: t.amount,
+      type: t.type,
+      status: t.status,
+      category: t.category,
+      month: t.month,
+    }));
+    await bulkImport(entries);
+  };
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -51,9 +68,6 @@ const Index = () => {
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <a href="/settings" className="p-2.5 glass-morphism hover:bg-accent rounded-full text-foreground transition-all duration-300 hover:scale-110 active:scale-95" title="Conectar Banco de Dados">
-              <Database className="w-5 h-5" />
-            </a>
           </div>
         </div>
       </header>
@@ -70,7 +84,7 @@ const Index = () => {
           </div>
           {/* Assistente IA */}
           <div className="w-full lg:w-2/5">
-            <AIAssistant onAddTransaction={addTransaction} />
+            <AIAssistant onAddTransaction={addTransaction} transactions={transactions} />
           </div>
         </section>
 
@@ -84,7 +98,7 @@ const Index = () => {
             <div className="col-span-2 lg:col-span-1">
               <StatsCard
                 title="Saldo (Mês)"
-                value={(selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto) - (selectedMonthStats.despesas + (selectedMonthStats.despesasPrevistas ?? 0))}
+                value={selectedMonthStats.totalReceita - selectedMonthStats.totalDespesa}
                 icon={<Wallet className="w-5 h-5" />}
                 variant="highlight"
                 description="Receita Total - Despesas"
@@ -106,7 +120,7 @@ const Index = () => {
             <div className="col-span-2 lg:col-span-1">
               <StatsCard
                 title="Receita Total (Mês)"
-                value={selectedMonthStats.recebido + selectedMonthStats.pendente + selectedMonthStats.previsto}
+                value={selectedMonthStats.totalReceita}
                 icon={<Calendar className="w-5 h-5" />}
                 description={`Realizado: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.recebido)} | Prev: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(selectedMonthStats.pendente + selectedMonthStats.previsto)}`}
               />
@@ -141,6 +155,15 @@ const Index = () => {
             <h2 className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Cash Flow Projection</h2>
           </div>
           <DFCChart data={dfcData} />
+        </section>
+
+        {/* Import Bank Statement */}
+        <section className="glass rounded-3xl p-6 border border-white/5">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="h-1 w-8 bg-emerald-500 rounded-full" />
+            <h2 className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Importar Extrato</h2>
+          </div>
+          <BankStatementUpload onImport={handleStatementImport} />
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
