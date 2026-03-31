@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line, ComposedChart } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -26,8 +26,8 @@ export const DFCChart = memo(function DFCChart({ data }: DFCChartProps) {
     // Format data for easier display
     const formattedData = data.map(item => ({
         ...item,
-        day: format(new Date(item.date), 'dd', { locale: ptBR }),
-        fullDate: format(new Date(item.date), 'dd/MM/yyyy', { locale: ptBR }),
+        day: format(parseISO(item.date), 'dd', { locale: ptBR }),
+        fullDate: format(parseISO(item.date), 'dd/MM/yyyy', { locale: ptBR }),
     }));
 
     const chartHeight = isMobile ? 280 : 400;
@@ -110,7 +110,7 @@ export const DFCChart = memo(function DFCChart({ data }: DFCChartProps) {
                         <Bar yAxisId="left" dataKey="expense" name="Saídas" fill="#f87171" barSize={barSize} radius={[4, 4, 0, 0]} />
                         <Line
                             yAxisId={isMobile ? "left" : "right"}
-                            type="monotone"
+                            type="stepAfter"
                             dataKey="balance"
                             name="Saldo"
                             stroke="#a855f7"
