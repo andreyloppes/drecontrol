@@ -15,6 +15,16 @@ export function useFinance() {
     new Date().toISOString().substring(0, 7)
   );
 
+  // Saldo anterior editável por mês (localStorage)
+  const [openingBalanceOverrides, setOpeningBalanceOverrides] = useState<Record<string, number>>(() => {
+    try {
+      const stored = localStorage.getItem('drecontroll_opening_balances');
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
+
   // Fetch all transactions from Supabase
   const fetchTransactions = useCallback(async () => {
     const { data, error } = await client
@@ -250,26 +260,42 @@ export function useFinance() {
     return getMonthStats(selectedMonth);
   }, [selectedMonth, getMonthStats]);
 
+  // Saldo anterior: override manual ou auto-calculado
+  const openingBalance = useMemo(() => {
+    if (openingBalanceOverrides[selectedMonth] !== undefined) {
+      return openingBalanceOverrides[selectedMonth];
+    }
+    const currentMonth = new Date().toISOString().substring(0, 7);
+    let balance = transactions
+      .filter(t => t.status === 'recebido' && t.month < selectedMonth)
+      .reduce((acc, t) => acc + Number(t.amount), 0);
+    if (selectedMonth > currentMonth) {
+      balance += transactions
+        .filter(t => t.month >= currentMonth && t.month < selectedMonth && (t.status === 'pendente' || t.status === 'previsto'))
+        .reduce((acc, t) => acc + Number(t.amount), 0);
+    }
+    return balance;
+  }, [selectedMonth, openingBalanceOverrides, transactions]);
+
+  const setOpeningBalance = useCallback((month: string, value: number | null) => {
+    setOpeningBalanceOverrides(prev => {
+      const updated = { ...prev };
+      if (value === null) {
+        delete updated[month];
+      } else {
+        updated[month] = value;
+      }
+      localStorage.setItem('drecontroll_opening_balances', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   const getDailyCashFlow = useCallback(() => {
     const start = parseISO(`${selectedMonth}-01`);
     const end = endOfMonth(start);
     const days = eachDayOfInterval({ start, end });
-    const currentMonth = new Date().toISOString().substring(0, 7);
 
-    let runningBalance = 0;
-
-    runningBalance += transactions
-      .filter(t => t.status === 'recebido' && t.month < selectedMonth)
-      .reduce((acc, t) => acc + Number(t.amount), 0);
-
-    if (selectedMonth > currentMonth) {
-      const gapTransactions = transactions.filter(t =>
-        t.month >= currentMonth &&
-        t.month < selectedMonth &&
-        (t.status === 'pendente' || t.status === 'previsto')
-      );
-      runningBalance += gapTransactions.reduce((acc, t) => acc + Number(t.amount), 0);
-    }
+    let runningBalance = openingBalance;
 
     return days.map(day => {
       const dateStr = format(day, 'yyyy-MM-dd');
@@ -293,7 +319,7 @@ export function useFinance() {
         balance: runningBalance,
       };
     });
-  }, [transactions, selectedMonth]);
+  }, [transactions, selectedMonth, openingBalance]);
 
   const dfcData = useMemo(() => getDailyCashFlow(), [getDailyCashFlow]);
 
@@ -317,5 +343,7 @@ export function useFinance() {
     selectedMonthStats,
     dfcData,
     loading,
+    openingBalance,
+    setOpeningBalance,
   };
 }

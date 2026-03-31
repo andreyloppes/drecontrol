@@ -8,12 +8,15 @@ import { MonthFilter } from '@/components/MonthFilter';
 import { DFCChart } from '@/components/DFCChart';
 import { AIAssistant } from '@/components/AIAssistant';
 import { ParsedTransaction } from '@/lib/statement-parser';
-import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw, Search, ArrowUpCircle, ArrowDownCircle, List, LogOut } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Landmark, Calendar, Briefcase, RefreshCw, Search, ArrowUpCircle, ArrowDownCircle, List, LogOut, Pencil, RotateCcw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState } from 'react';
+import { formatCurrency } from '@/lib/format';
 
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -39,8 +42,13 @@ const Index = () => {
     editTransaction,
     bulkImport,
     transactions,
-    loading
+    loading,
+    openingBalance,
+    setOpeningBalance,
   } = useFinance();
+
+  const [editingBalance, setEditingBalance] = useState(false);
+  const [balanceInput, setBalanceInput] = useState('');
 
   const handleAddTransactionAndScroll = useCallback(async (tx: any) => {
     await addTransaction(tx);
@@ -201,11 +209,89 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            <StatsCard
-              title="Pendente (Entrar)"
-              value={selectedMonthStats.pendente}
-              icon={<Clock className="w-5 h-5" />}
-            />
+            <div
+              className="relative overflow-hidden p-4 md:p-6 glass rounded-3xl transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 group hover:border-white/20 cursor-pointer"
+              onClick={() => {
+                setBalanceInput(openingBalance.toFixed(2).replace('.', ','));
+                setEditingBalance(true);
+              }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground group-hover:text-foreground/90 transition-colors truncate mr-2">
+                  Saldo Anterior
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <Pencil className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Landmark className="w-5 h-5 text-foreground/70 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
+                </div>
+              </div>
+              <p className="text-xl md:text-2xl font-bold tracking-tight truncate">
+                {formatCurrency(openingBalance)}
+              </p>
+              <p className="text-[10px] md:text-xs mt-3 text-muted-foreground font-mono uppercase opacity-70 group-hover:opacity-100 transition-opacity truncate">
+                Final mês: {formatCurrency(openingBalance + selectedMonthStats.totalReceita - selectedMonthStats.totalDespesa)}
+              </p>
+            </div>
+
+            {/* Dialog editar saldo anterior */}
+            <Dialog open={editingBalance} onOpenChange={setEditingBalance}>
+              <DialogContent className="sm:max-w-md glass border-white/10">
+                <DialogHeader>
+                  <DialogTitle>Saldo Anterior</DialogTitle>
+                  <DialogDescription>
+                    Defina o saldo real da conta no início do mês. Esse valor será o ponto de partida do gráfico DFC.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3 py-2">
+                  <Label htmlFor="opening-balance" className="text-xs font-mono uppercase tracking-wider">Valor (R$)</Label>
+                  <Input
+                    id="opening-balance"
+                    value={balanceInput}
+                    onChange={(e) => setBalanceInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const parsed = parseFloat(balanceInput.replace(/\./g, '').replace(',', '.'));
+                        if (!isNaN(parsed)) {
+                          setOpeningBalance(selectedMonth, parsed);
+                          setEditingBalance(false);
+                        }
+                      }
+                    }}
+                    placeholder="1535,53"
+                    className="bg-background/50 border-white/10 rounded-xl"
+                    autoFocus
+                  />
+                </div>
+                <DialogFooter className="gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setOpeningBalance(selectedMonth, null);
+                      setEditingBalance(false);
+                    }}
+                    className="rounded-xl text-xs gap-1.5"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Auto-calcular
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      const parsed = parseFloat(balanceInput.replace(/\./g, '').replace(',', '.'));
+                      if (!isNaN(parsed)) {
+                        setOpeningBalance(selectedMonth, parsed);
+                        setEditingBalance(false);
+                      }
+                    }}
+                    className="rounded-xl text-xs"
+                  >
+                    Salvar
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
             <StatsCard
               title="Projetos (Receita)"
               value={selectedMonthStats.projetos}
