@@ -81,6 +81,12 @@ export function useFinance() {
         const type = updates.type || target.type;
         processedUpdates.amount = type === 'despesa' ? -Math.abs(updates.amount) : Math.abs(updates.amount);
       }
+    } else if (updates.type !== undefined) {
+      // Type changed without amount — recalculate sign of existing amount
+      const target = transactions.find(t => t.id === id);
+      if (target) {
+        processedUpdates.amount = updates.type === 'despesa' ? -Math.abs(target.amount) : Math.abs(target.amount);
+      }
     }
 
     if (updates.date) {

@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { formatCurrency } from '@/lib/format';
 
 interface StatsCardProps {
   title: string;
@@ -8,12 +9,6 @@ interface StatsCardProps {
 }
 
 export function StatsCard({ title, value, icon, variant = 'default', description }: StatsCardProps & { description?: string }) {
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(val);
-  };
 
   return (
     <div

@@ -8,13 +8,16 @@ import { MonthFilter } from '@/components/MonthFilter';
 import { DFCChart } from '@/components/DFCChart';
 import { AIAssistant } from '@/components/AIAssistant';
 import { ParsedTransaction } from '@/lib/statement-parser';
-import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw, Search, ArrowUpCircle, ArrowDownCircle, List } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw, Search, ArrowUpCircle, ArrowDownCircle, List, LogOut } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useNavigate } from 'react-router-dom';
 
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
+  const navigate = useNavigate();
   const {
     filteredTransactions,
     selectedMonth,
@@ -33,8 +36,16 @@ const Index = () => {
     setTypeFilter,
     editTransaction,
     bulkImport,
-    transactions
+    transactions,
+    loading
   } = useFinance();
+
+  const userName = localStorage.getItem('user_name') || '';
+
+  const handleLogout = () => {
+    localStorage.removeItem('user_name');
+    navigate('/');
+  };
 
   const handleStatementImport = async (parsed: ParsedTransaction[]) => {
     const entries = parsed.map(t => ({
@@ -70,7 +81,21 @@ const Index = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {userName && (
+              <span className="text-xs font-mono text-muted-foreground hidden sm:inline">
+                Ola, <span className="text-foreground font-semibold">{userName}</span>
+              </span>
+            )}
             <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLogout}
+              className="h-9 w-9 rounded-xl border border-white/10 hover:bg-red-500/20 hover:text-red-400"
+              title="Sair"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </header>
@@ -90,6 +115,42 @@ const Index = () => {
             <AIAssistant onAddTransaction={addTransaction} transactions={transactions} />
           </div>
         </section>
+
+        {loading ? (
+          /* Loading Skeleton */
+          <section className="space-y-6">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="h-1 w-8 bg-cyan-500 rounded-full" />
+              <Skeleton className="h-3 w-40" />
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className={`glass rounded-3xl p-6 space-y-4 ${i === 0 || i === 3 ? 'col-span-2 lg:col-span-1' : ''}`}>
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-5 w-5 rounded" />
+                  </div>
+                  <Skeleton className="h-8 w-32" />
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className={`glass rounded-3xl p-6 space-y-4 ${i === 2 ? 'col-span-2 lg:col-span-1' : ''}`}>
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-5 w-5 rounded" />
+                  </div>
+                  <Skeleton className="h-8 w-32" />
+                </div>
+              ))}
+            </div>
+            <div className="glass rounded-3xl p-6 border border-white/5">
+              <Skeleton className="h-64 w-full rounded-2xl" />
+            </div>
+          </section>
+        ) : (
+        <>
 
         {/* Stats Grid */}
         <section className="space-y-6">
@@ -192,73 +253,74 @@ const Index = () => {
         </div>
 
         {/* Transactions / Extrato */}
-        {(filteredTransactions.length > 0 || searchTerm) && (
-          <section className="space-y-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-1">
-              <div className="flex items-center gap-2">
-                <div className="h-1 w-8 bg-cyan-500 rounded-full" />
-                <h2 className="text-xl font-bold tracking-tight">
-                  {searchTerm ? 'Resultado da Busca' : 'Extrato do Mês'}
-                </h2>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex gap-1 glass rounded-2xl p-1">
-                  <Button
-                    variant={typeFilter === 'all' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setTypeFilter('all')}
-                    className="rounded-xl h-9 px-3 text-xs font-mono uppercase tracking-wider"
-                  >
-                    <List className="w-3.5 h-3.5 mr-1.5" />
-                    Tudo
-                  </Button>
-                  <Button
-                    variant={typeFilter === 'entradas' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setTypeFilter('entradas')}
-                    className={`rounded-xl h-9 px-3 text-xs font-mono uppercase tracking-wider ${typeFilter === 'entradas' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
-                  >
-                    <ArrowUpCircle className="w-3.5 h-3.5 mr-1.5" />
-                    Entradas
-                  </Button>
-                  <Button
-                    variant={typeFilter === 'saidas' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => setTypeFilter('saidas')}
-                    className={`rounded-xl h-9 px-3 text-xs font-mono uppercase tracking-wider ${typeFilter === 'saidas' ? 'bg-red-600 hover:bg-red-700' : ''}`}
-                  >
-                    <ArrowDownCircle className="w-3.5 h-3.5 mr-1.5" />
-                    Saídas
-                  </Button>
-                </div>
-                <div className="relative w-full md:w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Buscar transação..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 h-9 bg-background/50 border-white/10 rounded-2xl focus:ring-cyan-500/50"
-                  />
-                </div>
-              </div>
+        <section className="space-y-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-1">
+            <div className="flex items-center gap-2">
+              <div className="h-1 w-8 bg-cyan-500 rounded-full" />
+              <h2 className="text-xl font-bold tracking-tight">
+                {searchTerm ? 'Resultado da Busca' : 'Extrato do Mes'}
+              </h2>
             </div>
-
-            <div className="glass rounded-3xl border border-white/5 overflow-hidden">
-              {filteredTransactions.length === 0 && searchTerm ? (
-                <div className="text-center py-16 text-muted-foreground">
-                  <p className="text-lg">Nenhuma transação encontrada</p>
-                  <p className="text-sm opacity-60">Tente buscar por outro termo.</p>
-                </div>
-              ) : (
-                <TransactionList
-                  transactions={filteredTransactions}
-                  onDelete={deleteTransaction}
-                  onUpdateStatus={updateTransactionStatus}
-                  onEdit={editTransaction}
+            <div className="flex items-center gap-3">
+              <div className="flex gap-1 glass rounded-2xl p-1">
+                <Button
+                  variant={typeFilter === 'all' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setTypeFilter('all')}
+                  className="rounded-xl h-9 px-3 text-xs font-mono uppercase tracking-wider"
+                >
+                  <List className="w-3.5 h-3.5 mr-1.5" />
+                  Tudo
+                </Button>
+                <Button
+                  variant={typeFilter === 'entradas' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setTypeFilter('entradas')}
+                  className={`rounded-xl h-9 px-3 text-xs font-mono uppercase tracking-wider ${typeFilter === 'entradas' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
+                >
+                  <ArrowUpCircle className="w-3.5 h-3.5 mr-1.5" />
+                  Entradas
+                </Button>
+                <Button
+                  variant={typeFilter === 'saidas' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setTypeFilter('saidas')}
+                  className={`rounded-xl h-9 px-3 text-xs font-mono uppercase tracking-wider ${typeFilter === 'saidas' ? 'bg-red-600 hover:bg-red-700' : ''}`}
+                >
+                  <ArrowDownCircle className="w-3.5 h-3.5 mr-1.5" />
+                  Saidas
+                </Button>
+              </div>
+              <div className="relative w-full md:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar transacao..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-9 bg-background/50 border-white/10 rounded-2xl focus:ring-cyan-500/50"
                 />
-              )}
+              </div>
             </div>
-          </section>
+          </div>
+
+          <div className="glass rounded-3xl border border-white/5 overflow-hidden">
+            {filteredTransactions.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground">
+                <p className="text-lg">{searchTerm ? 'Nenhuma transacao encontrada' : 'Nenhuma transacao neste mes'}</p>
+                <p className="text-sm opacity-60">{searchTerm ? 'Tente buscar por outro termo.' : 'Adicione uma transacao para comecar.'}</p>
+              </div>
+            ) : (
+              <TransactionList
+                transactions={filteredTransactions}
+                onDelete={deleteTransaction}
+                onUpdateStatus={updateTransactionStatus}
+                onEdit={editTransaction}
+              />
+            )}
+          </div>
+        </section>
+
+        </>
         )}
       </main>
 

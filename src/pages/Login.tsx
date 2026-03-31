@@ -35,7 +35,7 @@ export default function Login() {
 
             <Card className="w-full max-w-md glass border-white/5 rounded-[2rem] overflow-hidden relative z-10 shadow-2xl">
                 <CardHeader className="text-center space-y-2 pt-10">
-                    <div className="mx-auto w-16 h-16 glass-morphism rounded-2xl flex items-center justify-center mb-6 border border-white/10 animate-glow">
+                    <div className="mx-auto w-16 h-16 glass rounded-2xl flex items-center justify-center mb-6 border border-white/10 animate-glow">
                         <Lock className="w-8 h-8 text-cyan-400" />
                     </div>
                     <CardTitle className="text-4xl font-black tracking-tighter uppercase italic">
@@ -65,7 +65,7 @@ export default function Login() {
 
                         <div className="bg-white/5 border border-white/5 p-4 rounded-2xl text-[10px] text-muted-foreground font-mono leading-relaxed group hover:bg-white/10 transition-colors">
                             <p className="flex items-center gap-2 mb-1">
-                                <div className="w-1 h-1 bg-cyan-400 rounded-full animate-pulse" />
+                                <span className="w-1 h-1 inline-block bg-cyan-400 rounded-full animate-pulse" />
                                 <strong className="text-foreground/80 uppercase tracking-widest">Privacy Protocol:</strong>
                             </p>
                             This system operates on a local sandbox.

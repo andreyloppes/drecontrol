@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Transaction, PaymentStatus } from '@/types/finance';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +15,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { AddTransactionForm } from './AddTransactionForm';
+import { formatCurrency } from '@/lib/format';
 
 interface TransactionListProps {
   transactions: Transaction[];
@@ -39,8 +51,10 @@ export function TransactionList({ transactions, onDelete, onUpdateStatus, onEdit
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const formatCurrency = (val: number) =>
-    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+  // Reset pagination when transactions change (e.g., filter/month change)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [transactions]);
 
   const formatDate = (date: string) =>
     new Date(date + 'T12:00:00').toLocaleDateString('pt-BR');
@@ -177,18 +191,38 @@ export function TransactionList({ transactions, onDelete, onUpdateStatus, onEdit
                   variant="ghost"
                   size="icon"
                   onClick={() => { setEditingId(t.id); setIsDialogOpen(true); }}
-                  className="h-7 w-7 border border-white/5 hover:bg-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="h-7 w-7 border border-white/5 hover:bg-white/10 rounded-lg md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                 >
                   <Pencil className="w-3 h-3" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onDelete(t.id)}
-                  className="h-7 w-7 border border-red-500/10 hover:bg-red-500/20 hover:text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 border border-red-500/10 hover:bg-red-500/20 hover:text-red-400 rounded-lg md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="glass border-white/10">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Confirmar exclusao</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tem certeza? Esta acao nao pode ser desfeita.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => onDelete(t.id)}
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        Excluir
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           );
