@@ -131,6 +131,7 @@ export function useFinance() {
   };
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'entradas' | 'saidas'>('all');
 
   const availableMonths = useMemo(() => {
     const months = new Set(transactions.map((t) => t.month));
@@ -144,14 +145,23 @@ export function useFinance() {
     let base = transactions;
     if (searchTerm) {
       const lowerSearch = searchTerm.toLowerCase();
-      return base.filter(t =>
+      base = base.filter(t =>
         t.description.toLowerCase().includes(lowerSearch) ||
         (t.category || '').toLowerCase().includes(lowerSearch) ||
         t.type.toLowerCase().includes(lowerSearch)
       );
+    } else {
+      base = base.filter((t) => t.month === selectedMonth);
     }
-    return base.filter((t) => t.month === selectedMonth);
-  }, [transactions, selectedMonth, searchTerm]);
+
+    if (typeFilter === 'entradas') {
+      base = base.filter(t => t.type !== 'despesa');
+    } else if (typeFilter === 'saidas') {
+      base = base.filter(t => t.type === 'despesa');
+    }
+
+    return base;
+  }, [transactions, selectedMonth, searchTerm, typeFilter]);
 
   const monthlyData = useMemo((): MonthlyData[] => {
     const grouped: Record<string, MonthlyData> = {};
@@ -294,6 +304,8 @@ export function useFinance() {
     bulkImport,
     searchTerm,
     setSearchTerm,
+    typeFilter,
+    setTypeFilter,
     monthlyData,
     totalCaixa,
     selectedMonthStats,

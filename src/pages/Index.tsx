@@ -8,8 +8,9 @@ import { MonthFilter } from '@/components/MonthFilter';
 import { DFCChart } from '@/components/DFCChart';
 import { AIAssistant } from '@/components/AIAssistant';
 import { ParsedTransaction } from '@/lib/statement-parser';
-import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw, Search } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Clock, Calendar, Briefcase, RefreshCw, Search, ArrowUpCircle, ArrowDownCircle, List } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -28,6 +29,8 @@ const Index = () => {
     dfcData,
     searchTerm,
     setSearchTerm,
+    typeFilter,
+    setTypeFilter,
     editTransaction,
     bulkImport,
     transactions
@@ -198,14 +201,45 @@ const Index = () => {
                   {searchTerm ? 'Resultado da Busca' : 'Extrato do Mês'}
                 </h2>
               </div>
-              <div className="relative w-full md:w-80">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar transação..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-11 bg-background/50 border-white/10 rounded-2xl focus:ring-cyan-500/50"
-                />
+              <div className="flex items-center gap-3">
+                <div className="flex gap-1 glass rounded-2xl p-1">
+                  <Button
+                    variant={typeFilter === 'all' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setTypeFilter('all')}
+                    className="rounded-xl h-9 px-3 text-xs font-mono uppercase tracking-wider"
+                  >
+                    <List className="w-3.5 h-3.5 mr-1.5" />
+                    Tudo
+                  </Button>
+                  <Button
+                    variant={typeFilter === 'entradas' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setTypeFilter('entradas')}
+                    className={`rounded-xl h-9 px-3 text-xs font-mono uppercase tracking-wider ${typeFilter === 'entradas' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
+                  >
+                    <ArrowUpCircle className="w-3.5 h-3.5 mr-1.5" />
+                    Entradas
+                  </Button>
+                  <Button
+                    variant={typeFilter === 'saidas' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setTypeFilter('saidas')}
+                    className={`rounded-xl h-9 px-3 text-xs font-mono uppercase tracking-wider ${typeFilter === 'saidas' ? 'bg-red-600 hover:bg-red-700' : ''}`}
+                  >
+                    <ArrowDownCircle className="w-3.5 h-3.5 mr-1.5" />
+                    Saídas
+                  </Button>
+                </div>
+                <div className="relative w-full md:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar transação..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 h-9 bg-background/50 border-white/10 rounded-2xl focus:ring-cyan-500/50"
+                  />
+                </div>
               </div>
             </div>
 
