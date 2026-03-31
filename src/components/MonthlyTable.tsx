@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { MonthlyData } from '@/types/finance';
 import {
   Table,
@@ -12,7 +13,7 @@ interface MonthlyTableProps {
   data: MonthlyData[];
 }
 
-export function MonthlyTable({ data }: MonthlyTableProps) {
+export const MonthlyTable = memo(function MonthlyTable({ data }: MonthlyTableProps) {
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -63,4 +64,4 @@ export function MonthlyTable({ data }: MonthlyTableProps) {
       </Table>
     </div>
   );
-}
+});

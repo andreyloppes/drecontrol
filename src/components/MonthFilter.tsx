@@ -1,5 +1,6 @@
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
 import { format, parse, addMonths, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -11,6 +12,8 @@ interface MonthFilterProps {
 
 export function MonthFilter({ selectedMonth, onMonthChange, availableMonths }: MonthFilterProps) {
   const currentMonth = new Date().toISOString().substring(0, 7);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const formatMonthLabel = (month: string) => {
     const date = parse(month, 'yyyy-MM', new Date());
@@ -29,7 +32,36 @@ export function MonthFilter({ selectedMonth, onMonthChange, availableMonths }: M
     onMonthChange(nextMonth);
   };
 
+  const handleSelectMonth = (month: string) => {
+    onMonthChange(month);
+    setDropdownOpen(false);
+  };
+
   const isCurrentMonth = selectedMonth === currentMonth;
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    if (dropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [dropdownOpen]);
+
+  // Build a list of months to show in the dropdown
+  const dropdownMonths = availableMonths.length > 0 ? [...availableMonths] : (() => {
+    // Fallback: generate last 12 months
+    const months: string[] = [];
+    for (let i = 0; i < 12; i++) {
+      const d = subMonths(new Date(), i);
+      months.push(format(d, 'yyyy-MM'));
+    }
+    return months;
+  })();
 
   return (
     <div className="flex items-center justify-between p-3 gap-6">
@@ -42,10 +74,16 @@ export function MonthFilter({ selectedMonth, onMonthChange, availableMonths }: M
         <ChevronLeft className="w-5 h-5" />
       </Button>
 
-      <div className="text-center min-w-[160px]">
-        <p className="text-lg font-bold tracking-tight capitalize text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/60 transition-all">
-          {formatMonthLabel(selectedMonth)}
-        </p>
+      <div className="text-center min-w-[160px] relative" ref={dropdownRef}>
+        <button
+          onClick={() => setDropdownOpen(!dropdownOpen)}
+          className="flex items-center justify-center gap-1.5 mx-auto cursor-pointer hover:opacity-80 transition-opacity"
+        >
+          <p className="text-lg font-bold tracking-tight capitalize text-transparent bg-clip-text bg-gradient-to-r from-foreground to-foreground/60 transition-all">
+            {formatMonthLabel(selectedMonth)}
+          </p>
+          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+        </button>
         <div className="flex justify-center mt-1">
           {isCurrentMonth ? (
             <span className="text-[9px] uppercase tracking-[0.2em] font-mono text-cyan-400 animate-pulse font-bold">● Active Interval</span>
@@ -53,6 +91,28 @@ export function MonthFilter({ selectedMonth, onMonthChange, availableMonths }: M
             <div className="h-[2px] w-8 bg-white/10 rounded-full" />
           )}
         </div>
+
+        {/* Dropdown */}
+        {dropdownOpen && (
+          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 w-56 max-h-64 overflow-y-auto rounded-xl border border-white/10 bg-popover/95 backdrop-blur-xl shadow-2xl py-1 scrollbar-thin scrollbar-thumb-white/10">
+            {dropdownMonths.map((month) => (
+              <button
+                key={month}
+                onClick={() => handleSelectMonth(month)}
+                className={`w-full text-left px-4 py-2.5 text-sm capitalize transition-colors hover:bg-white/10 ${
+                  month === selectedMonth
+                    ? 'text-cyan-400 font-bold bg-white/5'
+                    : 'text-foreground/80'
+                } ${month === currentMonth ? 'font-semibold' : ''}`}
+              >
+                {formatMonthLabel(month)}
+                {month === currentMonth && (
+                  <span className="ml-2 text-[9px] uppercase tracking-wider text-cyan-400 font-mono">atual</span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <Button

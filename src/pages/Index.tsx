@@ -13,11 +13,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
+import { useRef, useCallback } from 'react';
 
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Index = () => {
   const navigate = useNavigate();
+  const transactionListRef = useRef<HTMLDivElement>(null);
   const {
     filteredTransactions,
     selectedMonth,
@@ -39,6 +41,13 @@ const Index = () => {
     transactions,
     loading
   } = useFinance();
+
+  const handleAddTransactionAndScroll = useCallback(async (tx: any) => {
+    await addTransaction(tx);
+    setTimeout(() => {
+      transactionListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }, [addTransaction]);
 
   const userName = localStorage.getItem('user_name') || '';
 
@@ -237,7 +246,7 @@ const Index = () => {
               Nova Transação
             </h2>
             <div className="glass p-6 rounded-3xl border border-white/5 h-fit">
-              <AddTransactionForm onAdd={addTransaction} />
+              <AddTransactionForm onAdd={handleAddTransactionAndScroll} />
             </div>
           </section>
 
@@ -253,7 +262,7 @@ const Index = () => {
         </div>
 
         {/* Transactions / Extrato */}
-        <section className="space-y-6">
+        <section ref={transactionListRef} className="space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 px-1">
             <div className="flex items-center gap-2">
               <div className="h-1 w-8 bg-cyan-500 rounded-full" />

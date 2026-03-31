@@ -1,7 +1,9 @@
+import { memo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line, ComposedChart } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DFCChartProps {
     data: {
@@ -12,7 +14,15 @@ interface DFCChartProps {
     }[];
 }
 
-export function DFCChart({ data }: DFCChartProps) {
+const abbreviateNumber = (value: number): string => {
+    if (Math.abs(value) >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+    if (Math.abs(value) >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
+    return String(value);
+};
+
+export const DFCChart = memo(function DFCChart({ data }: DFCChartProps) {
+    const isMobile = useIsMobile();
+
     // Format data for easier display
     const formattedData = data.map(item => ({
         ...item,
@@ -20,12 +30,17 @@ export function DFCChart({ data }: DFCChartProps) {
         fullDate: format(new Date(item.date), 'dd/MM/yyyy', { locale: ptBR }),
     }));
 
+    const chartHeight = isMobile ? 280 : 400;
+    const barSize = isMobile ? 6 : 12;
+    const lineWidth = isMobile ? 2 : 4;
+    const fontSize = isMobile ? 8 : 10;
+
     return (
         <Card className="col-span-full glass border-white/5 rounded-3xl overflow-hidden shadow-2xl">
             <CardHeader className="border-b border-white/5">
                 <CardTitle className="text-xl font-bold tracking-tight">Fluxo de Caixa Diário <span className="text-muted-foreground font-mono text-sm ml-2 opacity-50">(DFC PROJECTION)</span></CardTitle>
             </CardHeader>
-            <CardContent className="h-[400px] pt-6">
+            <CardContent className="pt-6" style={{ height: chartHeight }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={formattedData}>
                         <defs>
@@ -43,7 +58,7 @@ export function DFCChart({ data }: DFCChartProps) {
                             dataKey="day"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontFamily: 'monospace' }}
+                            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize, fontFamily: 'monospace' }}
                             dy={10}
                         />
                         <YAxis
@@ -51,15 +66,19 @@ export function DFCChart({ data }: DFCChartProps) {
                             orientation="left"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontFamily: 'monospace' }}
+                            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize, fontFamily: 'monospace' }}
+                            tickFormatter={isMobile ? abbreviateNumber : undefined}
+                            width={isMobile ? 40 : 60}
                         />
-                        <YAxis
-                            yAxisId="right"
-                            orientation="right"
-                            axisLine={false}
-                            tickLine={false}
-                            tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontFamily: 'monospace' }}
-                        />
+                        {!isMobile && (
+                            <YAxis
+                                yAxisId="right"
+                                orientation="right"
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: 'rgba(255,255,255,0.4)', fontSize, fontFamily: 'monospace' }}
+                            />
+                        )}
                         <Tooltip
                             contentStyle={{
                                 backgroundColor: 'rgba(3, 7, 18, 0.8)',
@@ -87,21 +106,21 @@ export function DFCChart({ data }: DFCChartProps) {
                                 </div>
                             )}
                         />
-                        <Bar yAxisId="left" dataKey="income" name="Entradas" fill="#22d3ee" barSize={12} radius={[4, 4, 0, 0]} />
-                        <Bar yAxisId="left" dataKey="expense" name="Saídas" fill="#f87171" barSize={12} radius={[4, 4, 0, 0]} />
+                        <Bar yAxisId="left" dataKey="income" name="Entradas" fill="#22d3ee" barSize={barSize} radius={[4, 4, 0, 0]} />
+                        <Bar yAxisId="left" dataKey="expense" name="Saídas" fill="#f87171" barSize={barSize} radius={[4, 4, 0, 0]} />
                         <Line
-                            yAxisId="right"
+                            yAxisId={isMobile ? "left" : "right"}
                             type="monotone"
                             dataKey="balance"
                             name="Saldo"
                             stroke="#a855f7"
-                            strokeWidth={4}
+                            strokeWidth={lineWidth}
                             dot={false}
-                            activeDot={{ r: 6, stroke: '#a855f7', strokeWidth: 2, fill: '#fff' }}
+                            activeDot={{ r: isMobile ? 4 : 6, stroke: '#a855f7', strokeWidth: 2, fill: '#fff' }}
                         />
                     </ComposedChart>
                 </ResponsiveContainer>
             </CardContent>
         </Card>
     );
-}
+});

@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles, Send, Plus, Settings2, X, Check } from 'lucide-react';
+import { Loader2, Sparkles, Send, Plus, Settings2, X, Check, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { Transaction } from '@/types/finance';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -25,6 +26,8 @@ interface AIAssistantProps {
 const GROQ_KEY_STORAGE = 'groq_api_key';
 
 export function AIAssistant({ onAddTransaction, transactions = [] }: AIAssistantProps) {
+  const isMobile = useIsMobile();
+  const [expanded, setExpanded] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +38,9 @@ export function AIAssistant({ onAddTransaction, transactions = [] }: AIAssistant
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isConfigured = !!apiKey;
+
+  // On mobile, start collapsed; on desktop, always expanded
+  const isCollapsed = isMobile && !expanded;
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -204,6 +210,27 @@ Nunca misture JSON com texto. Se for transação, retorne APENAS o JSON. Se for 
     despesa: 'text-red-400',
   };
 
+  // Collapsed mobile view - just header button
+  if (isCollapsed) {
+    return (
+      <button
+        onClick={() => setExpanded(true)}
+        className="w-full glass border-white/5 rounded-3xl px-5 py-3 flex items-center justify-between hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-purple-400" />
+          <span className="font-bold text-sm">Assistente Financeiro</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {isConfigured && (
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          )}
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        </div>
+      </button>
+    );
+  }
+
   return (
     <div className="relative group">
       <div className="absolute inset-0 bg-purple-500/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl" />
@@ -224,6 +251,14 @@ Nunca misture JSON com texto. Se for transação, retorne APENAS o JSON. Se for 
             >
               <Settings2 className="w-3.5 h-3.5" />
             </button>
+            {isMobile && (
+              <button
+                onClick={() => setExpanded(false)}
+                className="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
