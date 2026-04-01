@@ -21,11 +21,12 @@ interface ChatMessage {
 interface AIAssistantProps {
   onAddTransaction: (transaction: any) => void;
   transactions?: Transaction[];
+  alwaysExpanded?: boolean;
 }
 
 const GROQ_KEY_STORAGE = 'groq_api_key';
 
-export function AIAssistant({ onAddTransaction, transactions = [] }: AIAssistantProps) {
+export function AIAssistant({ onAddTransaction, transactions = [], alwaysExpanded = false }: AIAssistantProps) {
   const isMobile = useIsMobile();
   const [expanded, setExpanded] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -39,8 +40,8 @@ export function AIAssistant({ onAddTransaction, transactions = [] }: AIAssistant
 
   const isConfigured = !!apiKey;
 
-  // On mobile, start collapsed; on desktop, always expanded
-  const isCollapsed = isMobile && !expanded;
+  // On mobile, start collapsed; on desktop or alwaysExpanded, always expanded
+  const isCollapsed = isMobile && !expanded && !alwaysExpanded;
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
