@@ -9,6 +9,10 @@ import { MonthFilter } from '@/components/MonthFilter';
 import { AIAssistant } from '@/components/AIAssistant';
 import { TargetVsActualCard } from '@/components/TargetVsActualCard';
 import { CopilotPanel } from '@/components/CopilotPanel';
+import { ForecastChart } from '@/components/ForecastChart';
+import { ReembolsoCard } from '@/components/ReembolsoCard';
+import { InsightsPanel } from '@/components/InsightsPanel';
+import { IncomeSmoothingCard } from '@/components/IncomeSmoothingCard';
 import { AnalyticsPanel } from '@/components/AnalyticsPanel';
 import { ParsedTransaction } from '@/lib/statement-parser';
 import type { Transaction } from '@/types/finance';
@@ -216,6 +220,9 @@ export function DesktopLayout() {
         {/* Copiloto — números prospectivos */}
         <CopilotPanel />
 
+        {/* Insights proativos */}
+        <InsightsPanel />
+
         {/* Stats Grid */}
         <section className="space-y-6">
           <div className="flex items-center gap-2 mb-2">
@@ -295,6 +302,12 @@ export function DesktopLayout() {
         {/* Meta vs Realizado */}
         <TargetVsActualCard />
 
+        {/* Teto de reembolso */}
+        <ReembolsoCard />
+
+        {/* Salário-base (income smoothing) */}
+        <IncomeSmoothingCard />
+
         {/* DFC Chart */}
         <section className="glass rounded-3xl p-6 border border-white/5">
           <div className="flex items-center gap-2 mb-6">
@@ -305,6 +318,9 @@ export function DesktopLayout() {
             <DFCChart data={dfcData} />
           </Suspense>
         </section>
+
+        {/* Forecast 90 dias */}
+        <ForecastChart />
 
         {/* Analytics Panel */}
         <AnalyticsPanel />

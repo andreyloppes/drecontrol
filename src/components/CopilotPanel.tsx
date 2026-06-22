@@ -40,16 +40,22 @@ export const CopilotPanel = memo(function CopilotPanel() {
       return `${x.getUTCFullYear()}-${pad(x.getUTCMonth() + 1)}`;
     };
 
-    // Custo de vida médio (3 meses anteriores, sem aportes de reserva)
-    const meses3 = [shift(selectedMonth, -3), shift(selectedMonth, -2), shift(selectedMonth, -1)];
-    const custos = meses3
+    // Custo de vida = MEDIANA dos últimos 6 meses com movimento (mediana é robusta
+    // a meses atípicos, ex: um mês com gasto pontual altíssimo não distorce).
+    const meses6 = [-6, -5, -4, -3, -2, -1].map((k) => shift(selectedMonth, k));
+    const custos = meses6
       .map((m) =>
         transactions
           .filter((t) => t.month === m && t.type === 'despesa' && t.status !== 'cancelado' && !isReserva(t))
           .reduce((a, t) => a + Math.abs(Number(t.amount)), 0)
       )
-      .filter((v) => v > 0);
-    const custoMedio = custos.length ? custos.reduce((a, v) => a + v, 0) / custos.length : 0;
+      .filter((v) => v > 0)
+      .sort((a, b) => a - b);
+    const custoMedio = custos.length
+      ? custos.length % 2
+        ? custos[(custos.length - 1) / 2]
+        : (custos[custos.length / 2 - 1] + custos[custos.length / 2]) / 2
+      : 0;
 
     // Reserva já guardada (aportes realizados)
     const reservaGuardada = transactions

@@ -7,6 +7,10 @@ import { TransactionList } from '@/components/TransactionList';
 import { MonthFilter } from '@/components/MonthFilter';
 import { AIAssistant } from '@/components/AIAssistant';
 import { CopilotPanel } from '@/components/CopilotPanel';
+import { ForecastChart } from '@/components/ForecastChart';
+import { ReembolsoCard } from '@/components/ReembolsoCard';
+import { InsightsPanel } from '@/components/InsightsPanel';
+import { IncomeSmoothingCard } from '@/components/IncomeSmoothingCard';
 import { TargetVsActualCard } from '@/components/TargetVsActualCard';
 import { AnalyticsPanel } from '@/components/AnalyticsPanel';
 import { ParsedTransaction } from '@/lib/statement-parser';
@@ -181,6 +185,9 @@ export function MobileLayout() {
                 {/* Copiloto — números prospectivos */}
                 <CopilotPanel />
 
+                {/* Insights proativos */}
+                <InsightsPanel />
+
                 {/* Saldo Anterior — Big card */}
                 <button
                   type="button"
@@ -302,6 +309,12 @@ export function MobileLayout() {
 
                 {/* Meta vs Realizado */}
                 <TargetVsActualCard />
+
+                {/* Teto de reembolso */}
+                <ReembolsoCard />
+
+                {/* Salário-base (income smoothing) */}
+                <IncomeSmoothingCard />
 
                 {/* Analytics Panel */}
                 <AnalyticsPanel />
@@ -433,6 +446,9 @@ export function MobileLayout() {
                 <DFCChart data={dfcData} />
               </Suspense>
             </div>
+
+            {/* Forecast 90 dias */}
+            <ForecastChart />
 
             <div className="glass rounded-2xl border border-white/5 overflow-hidden">
               <MonthlyTable data={monthlyData} />
