@@ -1,17 +1,14 @@
 import React, { Suspense } from "react";
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
 import { SupabaseProvider } from "./context/SupabaseContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
+const Index = React.lazy(() => import("./pages/Index"));
 const Login = React.lazy(() => import("./pages/Login"));
+const Planejamento = React.lazy(() => import("./pages/Planejamento"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
-
-const queryClient = new QueryClient();
 
 const LazyFallback = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
@@ -20,23 +17,21 @@ const LazyFallback = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <SupabaseProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Suspense fallback={<LazyFallback />}>
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/dashboard" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </TooltipProvider>
-    </SupabaseProvider>
-  </QueryClientProvider>
+  <SupabaseProvider>
+    <TooltipProvider>
+      <Sonner />
+      <BrowserRouter>
+        <Suspense fallback={<LazyFallback />}>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/planejamento" element={<ProtectedRoute><Planejamento /></ProtectedRoute>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </TooltipProvider>
+  </SupabaseProvider>
 );
 
 export default App;

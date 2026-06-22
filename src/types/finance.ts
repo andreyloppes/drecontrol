@@ -11,6 +11,9 @@ export interface Transaction {
   status: PaymentStatus;
   date: string;
   month: string; // format: "YYYY-MM"
+  installment_id?: string | null;
+  installment_index?: number | null;
+  installment_total?: number | null;
 }
 
 export interface MonthlyData {
@@ -22,3 +25,24 @@ export interface MonthlyData {
   total: number;
   saldo: number;
 }
+
+export interface MonthStats {
+  recebido: number;
+  pendente: number;
+  previsto: number;
+  totalReceita: number;
+  totalDespesa: number;
+  projetos: number;
+  recorrencia: number;
+  despesas: number;
+  despesasPrevistas: number;
+}
+
+export interface DailyCashFlow {
+  date: string;
+  income: number;
+  expense: number;
+  balance: number;
+}
+
+export type TypeFilter = 'all' | 'entradas' | 'saidas';

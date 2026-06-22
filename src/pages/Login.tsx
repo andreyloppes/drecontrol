@@ -41,40 +41,40 @@ export default function Login() {
                     <CardTitle className="text-4xl font-black tracking-tighter uppercase italic">
                         DRE <span className="text-cyan-400">Control</span>
                     </CardTitle>
-                    <CardDescription className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60">
-                        Intelligent Finance OS <span className="text-cyan-500/50">v2.0</span>
+                    <CardDescription className="text-xs tracking-wide text-muted-foreground/70">
+                        Seu controle financeiro pessoal
                     </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleLogin}>
                     <CardContent className="space-y-6 px-8">
                         <div className="space-y-3">
-                            <label htmlFor="name" className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground ml-1">
-                                [IDENTIFICATION_REQUIRED]
+                            <label htmlFor="name" className="text-xs uppercase tracking-wide text-muted-foreground ml-1 font-semibold">
+                                Seu nome
                             </label>
                             <div className="relative group">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-cyan-400 transition-colors" />
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-cyan-400 transition-colors" aria-hidden="true" />
                                 <Input
                                     id="name"
-                                    placeholder="Enter identifier..."
-                                    className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus:ring-cyan-500/30 transition-all font-mono placeholder:text-muted-foreground/30"
+                                    aria-required="true"
+                                    placeholder="Digite seu nome..."
+                                    className="pl-12 h-14 bg-white/5 border-white/10 rounded-2xl focus-visible:ring-2 focus-visible:ring-cyan-500/60 transition-all placeholder:text-muted-foreground/30"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                 />
                             </div>
                         </div>
 
-                        <div className="bg-white/5 border border-white/5 p-4 rounded-2xl text-[10px] text-muted-foreground font-mono leading-relaxed group hover:bg-white/10 transition-colors">
+                        <div className="bg-white/5 border border-white/5 p-4 rounded-2xl text-[11px] text-muted-foreground leading-relaxed group hover:bg-white/10 transition-colors">
                             <p className="flex items-center gap-2 mb-1">
-                                <span className="w-1 h-1 inline-block bg-cyan-400 rounded-full animate-pulse" />
-                                <strong className="text-foreground/80 uppercase tracking-widest">Privacy Protocol:</strong>
+                                <span className="w-1 h-1 inline-block bg-cyan-400 rounded-full" />
+                                <strong className="text-foreground/80">Acesso local:</strong>
                             </p>
-                            This system operates on a local sandbox.
-                            Zero telemetry. Zero egress. Your assets, your node.
+                            Seus dados ficam no seu navegador e na sua conta. Sem rastreamento, sem compartilhamento.
                         </div>
                     </CardContent>
                     <CardFooter className="px-8 pb-10">
-                        <Button type="submit" className="w-full h-14 rounded-2xl font-black uppercase tracking-widest bg-gradient-to-r from-cyan-600 via-purple-600 to-cyan-600 bg-[length:200%_auto] animate-glow hover:bg-right transition-all duration-500 shadow-xl shadow-cyan-500/20 text-white">
-                            Initialize Session
+                        <Button type="submit" className="w-full h-14 rounded-2xl font-bold uppercase tracking-wide bg-gradient-to-r from-cyan-600 via-purple-600 to-cyan-600 bg-[length:200%_auto] animate-glow hover:bg-right transition-all duration-500 shadow-xl shadow-cyan-500/20 text-white">
+                            Entrar
                         </Button>
                     </CardFooter>
                 </form>

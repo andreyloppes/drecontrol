@@ -30,7 +30,9 @@ async function readFileContent(file: File): Promise<string> {
 
 async function parsePDF(file: File): Promise<ParsedTransaction[]> {
   const pdfjsLib = await import('pdfjs-dist');
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+  // Worker bundlado localmente pelo Vite — funciona offline (PWA) e sem depender de CDN externo.
+  const workerUrl = (await import('pdfjs-dist/build/pdf.worker.min.mjs?url')).default;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -137,7 +139,7 @@ function parseExtratoPDF(text: string): ParsedTransaction[] {
 
 // ─── OFX Parser ───────────────────────────────────────────────
 
-function parseOFX(content: string): ParsedTransaction[] {
+export function parseOFX(content: string): ParsedTransaction[] {
   const transactions: ParsedTransaction[] = [];
 
   const trnRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi;
@@ -193,7 +195,7 @@ function parseOFXDate(raw: string): string | null {
 
 // ─── CSV Parser ───────────────────────────────────────────────
 
-function parseCSV(content: string): ParsedTransaction[] {
+export function parseCSV(content: string): ParsedTransaction[] {
   const lines = content.split(/\r?\n/).filter(l => l.trim());
   if (lines.length < 2) return [];
 
@@ -425,7 +427,7 @@ function parseHeaderlessCSV(lines: string[], sep: string): ParsedTransaction[] {
 
 // ─── Date & Amount Utils ──────────────────────────────────────
 
-function parseFlexibleDate(raw: string): string | null {
+export function parseFlexibleDate(raw: string): string | null {
   // Skip invalid dates
   if (raw.startsWith('00/') || raw === '00/00/0000') return null;
 
@@ -441,7 +443,7 @@ function parseFlexibleDate(raw: string): string | null {
   return null;
 }
 
-function parseBRLAmount(raw: string): number {
+export function parseBRLAmount(raw: string): number {
   let cleaned = raw.replace(/\s/g, '').replace(/R\$/g, '');
 
   if (/\d\.\d{3}/.test(cleaned) && cleaned.includes(',')) {
@@ -484,7 +486,7 @@ const CATEGORY_RULES: [RegExp, string][] = [
   [/escola|faculdade|curso|mensalidade|educa[çc][aã]o/i, 'Educação'],
 ];
 
-function categorize(description: string): string {
+export function categorize(description: string): string {
   for (const [pattern, category] of CATEGORY_RULES) {
     if (pattern.test(description)) return category;
   }

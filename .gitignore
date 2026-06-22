@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 .vercel
 .env*.local
+
+# Artefatos de teste/QA
+test-results/
+qa-report.md
+playwright-report/

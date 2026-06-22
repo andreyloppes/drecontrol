@@ -26,11 +26,11 @@ export function ThemeToggle() {
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            className="relative w-10 h-10 rounded-full border border-white/10 glass transition-all duration-300 hover:scale-110 active:scale-95"
+            aria-label={`Alternar para tema ${theme === 'dark' ? 'claro' : 'escuro'}`}
+            className="relative w-11 h-11 rounded-full border border-white/10 glass transition-all duration-300 hover:scale-110 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
         >
-            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-yellow-500" />
-            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-cyan-400" />
-            <span className="sr-only">Alternar tema</span>
+            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-yellow-500" aria-hidden="true" />
+            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-cyan-400" aria-hidden="true" />
         </Button>
     );
 }

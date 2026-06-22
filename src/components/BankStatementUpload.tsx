@@ -93,23 +93,26 @@ export function BankStatementUpload({ onImport }: BankStatementUploadProps) {
     return (
       <div className="space-y-4">
         <label
-          className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-white/10 rounded-3xl cursor-pointer hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all duration-300 group"
+          htmlFor="bank-statement-file"
+          className="flex flex-col items-center justify-center gap-4 p-8 border-2 border-dashed border-white/10 rounded-3xl cursor-pointer hover:border-cyan-500/40 hover:bg-cyan-500/5 transition-all duration-300 group focus-within:border-cyan-500/60 focus-within:ring-2 focus-within:ring-cyan-500/40"
         >
           <div className="p-4 bg-cyan-500/10 rounded-2xl group-hover:bg-cyan-500/20 transition-colors">
-            <Upload className="w-8 h-8 text-cyan-400" />
+            <Upload className="w-8 h-8 text-cyan-400" aria-hidden="true" />
           </div>
           <div className="text-center">
             <p className="font-bold text-sm">Importar Extrato Bancário</p>
-            <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest mt-1">
+            <p className="text-xs text-muted-foreground font-mono uppercase tracking-widest mt-1">
               PDF • OFX • CSV • TXT
             </p>
           </div>
           <input
+            id="bank-statement-file"
             ref={fileRef}
             type="file"
             accept=".pdf,.ofx,.ofc,.csv,.txt"
             onChange={handleFile}
-            className="hidden"
+            aria-label="Selecionar arquivo de extrato bancário (PDF, OFX, CSV ou TXT)"
+            className="sr-only"
           />
         </label>
         <p className="text-[10px] text-muted-foreground/50 text-center font-mono">
@@ -130,24 +133,30 @@ export function BankStatementUpload({ onImport }: BankStatementUploadProps) {
           </div>
           <div>
             <p className="text-sm font-bold">{fileName}</p>
-            <p className="text-[10px] text-muted-foreground font-mono">
+            <p className="text-xs text-muted-foreground font-mono">
               {selected.size}/{parsed.length} selecionadas
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" onClick={handleClear} className="text-muted-foreground hover:text-red-400">
-          <Trash2 className="w-4 h-4" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleClear}
+          aria-label="Descartar arquivo importado"
+          className="h-11 w-11 text-muted-foreground hover:text-red-400 focus-visible:ring-2 focus-visible:ring-red-500"
+        >
+          <Trash2 className="w-4 h-4" aria-hidden="true" />
         </Button>
       </div>
 
       {/* Summary */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3 text-center">
-          <p className="text-[10px] uppercase tracking-widest text-emerald-400 font-mono">Entradas</p>
+          <p className="text-xs uppercase tracking-widest text-emerald-400 font-mono">Entradas</p>
           <p className="text-lg font-bold text-emerald-300">{fmt(totalIncome)}</p>
         </div>
         <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-3 text-center">
-          <p className="text-[10px] uppercase tracking-widest text-red-400 font-mono">Saídas</p>
+          <p className="text-xs uppercase tracking-widest text-red-400 font-mono">Saídas</p>
           <p className="text-lg font-bold text-red-300">{fmt(totalExpense)}</p>
         </div>
       </div>
@@ -155,12 +164,13 @@ export function BankStatementUpload({ onImport }: BankStatementUploadProps) {
       {/* Select All */}
       <div className="flex items-center justify-between px-1">
         <button
+          type="button"
           onClick={toggleAll}
-          className="text-[10px] uppercase tracking-widest text-cyan-400 hover:text-cyan-300 font-mono transition-colors"
+          className="min-h-[44px] px-2 -ml-2 text-xs uppercase tracking-widest text-cyan-400 hover:text-cyan-300 font-mono transition-colors rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
         >
           {selected.size === parsed.length ? 'Desmarcar Todas' : 'Selecionar Todas'}
         </button>
-        <span className="text-[10px] text-muted-foreground font-mono">
+        <span className="text-xs text-muted-foreground font-mono">
           Até {new Date().toLocaleDateString('pt-BR')}
         </span>
       </div>
@@ -170,8 +180,12 @@ export function BankStatementUpload({ onImport }: BankStatementUploadProps) {
         {parsed.map((t, idx) => (
           <button
             key={idx}
+            type="button"
+            role="checkbox"
+            aria-checked={selected.has(idx)}
+            aria-label={`${selected.has(idx) ? 'Desmarcar' : 'Marcar'} transação ${t.description} de ${fmt(t.amount)}`}
             onClick={() => toggleSelect(idx)}
-            className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-200 ${
+            className={`w-full min-h-[44px] flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${
               selected.has(idx)
                 ? 'bg-white/5 border border-white/10'
                 : 'opacity-40 border border-transparent'
