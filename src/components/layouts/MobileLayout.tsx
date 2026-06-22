@@ -6,6 +6,7 @@ import { MonthlyTable } from '@/components/MonthlyTable';
 import { TransactionList } from '@/components/TransactionList';
 import { MonthFilter } from '@/components/MonthFilter';
 import { AIAssistant } from '@/components/AIAssistant';
+import { CopilotPanel } from '@/components/CopilotPanel';
 import { TargetVsActualCard } from '@/components/TargetVsActualCard';
 import { AnalyticsPanel } from '@/components/AnalyticsPanel';
 import { ParsedTransaction } from '@/lib/statement-parser';
@@ -177,6 +178,9 @@ export function MobileLayout() {
               </div>
             ) : (
               <>
+                {/* Copiloto — números prospectivos */}
+                <CopilotPanel />
+
                 {/* Saldo Anterior — Big card */}
                 <button
                   type="button"

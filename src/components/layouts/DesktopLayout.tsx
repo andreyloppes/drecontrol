@@ -8,6 +8,7 @@ import { TransactionList } from '@/components/TransactionList';
 import { MonthFilter } from '@/components/MonthFilter';
 import { AIAssistant } from '@/components/AIAssistant';
 import { TargetVsActualCard } from '@/components/TargetVsActualCard';
+import { CopilotPanel } from '@/components/CopilotPanel';
 import { AnalyticsPanel } from '@/components/AnalyticsPanel';
 import { ParsedTransaction } from '@/lib/statement-parser';
 import type { Transaction } from '@/types/finance';
@@ -211,6 +212,9 @@ export function DesktopLayout() {
           </section>
         ) : (
         <>
+
+        {/* Copiloto — números prospectivos */}
+        <CopilotPanel />
 
         {/* Stats Grid */}
         <section className="space-y-6">
