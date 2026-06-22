@@ -7,6 +7,9 @@ import { toast } from 'sonner';
 const TABLE = 'transactions';
 const OPENING_BALANCES_TABLE = 'opening_balances';
 const OPENING_BALANCES_LS_KEY = 'drecontroll_opening_balances';
+// Chave especial na tabela opening_balances para guardar o SALDO REAL da conta hoje
+// (informado pelo usuário). Não é um mês — é o "quanto tenho na conta agora".
+const REAL_BALANCE_KEY = '__saldo_atual__';
 
 export function useFinance() {
   const { client } = useSupabase();
@@ -586,6 +589,17 @@ export function useFinance() {
     }
   }, [client]);
 
+  // Saldo REAL da conta hoje (informado pelo usuário). null = ainda não informado.
+  const realBalance = useMemo(() => {
+    const v = openingBalanceOverrides[REAL_BALANCE_KEY];
+    return v === undefined ? null : v;
+  }, [openingBalanceOverrides]);
+
+  const setRealBalance = useCallback(
+    (value: number | null) => setOpeningBalance(REAL_BALANCE_KEY, value),
+    [setOpeningBalance]
+  );
+
   const getDailyCashFlow = useCallback(() => {
     const start = parseISO(`${selectedMonth}-01`);
     const end = endOfMonth(start);
@@ -645,5 +659,7 @@ export function useFinance() {
     loading,
     openingBalance,
     setOpeningBalance,
+    realBalance,
+    setRealBalance,
   };
 }
